@@ -2,11 +2,6 @@
 Here is our CPU Software Rasterizer project made during our first Computer Graphics year.
 
 ## Installation
-You could choose this way to clone our project when we are developing.
-```shell
-git clone -b final git@github.com:SakurayYuzuru/Rasterizer.git
-```
-After we finish it, you could choose:
 ```shell
 git clone git@github.com:SakurayYuzuru/Rasterizer.git
 ```
