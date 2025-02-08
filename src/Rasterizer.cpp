@@ -84,9 +84,19 @@ void Rasterizer::drawLine(Vector3f &begin, Vector3f &end){
     }
 }
 
+void Rasterizer::drawTriangle(Vector3f &a, Vector3f &b, Vector3f &c){
+    drawLine(a, b);
+    drawLine(a, c);
+    drawLine(b, c);
+}
+
 void Rasterizer::draw(){
     bool quit = false;
     SDL_Event e;
+
+    Vector3f a(this->window.HEIGHT * 0.25f, this->window.WIDTH * 0.67f, 0.0f), 
+        b(this->window.HEIGHT * 0.75f, this->window.WIDTH * 0.67f, 0.0f), 
+        c(this->window.HEIGHT * 0.50f, this->window.WIDTH * 0.33f, 0.0f);
 
     while(!quit){
         while(SDL_PollEvent(&e) != 0){
@@ -98,10 +108,9 @@ void Rasterizer::draw(){
         Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
         SDL_SetRenderDrawColor(this->window.renderer, background_color.x, background_color.y, background_color.z, background_color.w);
         SDL_RenderClear(this->window.renderer);
-        Vector3f start(1.0f, 2.0f, 3.0f);
-        Vector3f end(3.0f, 4.0f, 3.0f);
-        //drawLine(start, end);
-        SDL_RenderDrawLine(this->window.renderer, start.x, start.y, end.x, end.y);
+        
+        drawTriangle(a, b, c);
+
         SDL_RenderPresent(this->window.renderer);
     }
 

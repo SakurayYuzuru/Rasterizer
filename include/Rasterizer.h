@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <IManager.h>
 #include <Window.h>
 
 #include <Math.h>
@@ -18,6 +17,7 @@ public:
 
 private:
     void drawLine(Vector3f &begin, Vector3f &end);
+    void drawTriangle(Vector3f &a, Vector3f &b, Vector3f &c);
 
     Window window;
 };

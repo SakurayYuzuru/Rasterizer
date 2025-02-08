@@ -7,7 +7,7 @@
 
 class Window{
 public:
-    static const int HEIGHT = 1080, WIDTH = 960;
+    static const int HEIGHT = 960, WIDTH = 720;
 
     Window();
     ~Window();
