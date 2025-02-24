@@ -26,6 +26,8 @@ Basic components of a rasterizer were implemented along with the following exten
 - Z-buffer
 - Color Blending
 - MVP Transformation
+
+## Screen Shots
 ### Bresen Ham's algorithm
 ![Bresen Ham's algorithm](/ScreenShot/Bresen-ham.png)
 
