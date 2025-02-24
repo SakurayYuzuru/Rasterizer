@@ -36,8 +36,8 @@ std::vector<Vector3f> Triangle::v() const{
 
     return vex;
 }
-Color Triangle::getColor() const{
-    return this->vertexes[0].color;
+Color Triangle::getColor(int index) const{
+    return this->vertexes[index].color;
 }
 
 std::array<Vector4f, 3> Triangle::toVector4() const{

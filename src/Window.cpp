@@ -21,12 +21,22 @@ Window::Window() : h(HEIGHT), w(WIDTH){
         SDL_Quit();
         exit(EXIT_FAILURE);
     }
+
+    this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, this->HEIGHT, this->WIDTH);
+    if(this->texture == nullptr){
+        std::cerr << "SDL::TEXTURE::CREATE::ERROR: " << SDL_GetError() << std::endl;
+        SDL_DestroyRenderer(this->renderer);
+        SDL_DestroyWindow(this->window);
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
 }
 
 Window::~Window(){
-    delete this->texture;
-    delete this->renderer;
-    delete this->window;
+    SDL_DestroyTexture(this->texture);
+    SDL_DestroyRenderer(this->renderer);
+    SDL_DestroyWindow(this->window);
+    SDL_Quit();
 }
 
 int Window::height() const{

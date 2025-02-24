@@ -20,7 +20,7 @@ public:
     void setNormal(int index, Vector3f n);
 
     std::vector<Vector3f> v() const;
-    Color getColor() const;
+    Color getColor(int index) const;
     Vector2f getTexture() const;
     Vector3f getNormal() const;
 

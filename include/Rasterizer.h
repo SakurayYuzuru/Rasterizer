@@ -15,6 +15,7 @@
 #include <tuple>
 #include <vector>
 #include <map>
+#include <memory>
 
 class Rasterizer : public IManager{
 public:
@@ -30,7 +31,7 @@ public:
     void set_view(const Matrix &v);
     void set_projection(const Matrix &p);
 
-    std::vector<Vector3f> &frame_buffer() const;
+    std::unique_ptr<uint32_t[]> frame_buffer() const;
 
     // for draw loop
     void draw();

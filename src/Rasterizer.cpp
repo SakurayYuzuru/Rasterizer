@@ -140,7 +140,7 @@ void Rasterizer::triangleRasterize(const Triangle &t){
                 int index = get_index(x, y);
                 if(z_interpolated < z_buffer[index]){
                     Vector3f p(x, y, z_interpolated);
-                    set_pixel(p, t.getColor());
+                    set_pixel(p, Color::lerp(t.getColor(0), t.getColor(1), t.getColor(2), alpha, beta, gamma));
                     z_buffer[index] = z_interpolated;
                 }
             }
@@ -148,26 +148,32 @@ void Rasterizer::triangleRasterize(const Triangle &t){
     }
 }
 void Rasterizer::render() {
-    void* pixels = (void*)malloc(sizeof(void));
+    void* pixels;
     int pitch;
-    SDL_UpdateTexture(this->window.getTexture(), nullptr, pixels, pitch);
-
     SDL_LockTexture(this->window.getTexture(), nullptr, &pixels, &pitch);
 
     for (int y = 0; y < this->window.height(); ++y) {
         for (int x = 0; x < this->window.width(); ++x) {
             auto index = get_index(x, y);
             Color color = frame_buf[index];
-            Uint32* pixel = static_cast<Uint32*>(pixels) + y * (pitch / 4) + x;
-            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), 
-                                 (Uint8)color.r, (Uint8)color.g, (Uint8)color.b, (Uint8)color.a);
+            Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
+            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
         }
     }
 
     SDL_UnlockTexture(this->window.getTexture());
-    
+    SDL_RenderCopy(this->window.getRenderer(), this->window.getTexture(), nullptr, nullptr);
+    SDL_RenderPresent(this->window.getRenderer());
 }
 
+std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
+    std::unique_ptr<uint32_t[]> fb = std::make_unique<uint32_t[]>(this->window.height() * this->window.width());
+    for(int i = 0; i < frame_buf.size(); ++ i){
+        fb.get()[i] = frame_buf[i].toUInt();
+    }
+
+    return std::move(fb);
+}
 
 void Rasterizer::draw(){
     while(SDL_PollEvent(&e) != 0){
@@ -192,17 +198,16 @@ void Rasterizer::draw(){
     Matrix mvp = projection * view * model;
 
     Triangle triangle;
-    triangle.setVertex(0, Vector3f(520.0f, 780.0f, 1.0f));
-    triangle.setVertex(1, Vector3f(870.0f, 780.0f, 1.0f));
-    triangle.setVertex(2, Vector3f(520.0f, 260.0f, 1.0f));
+    triangle.setVertex(0, Vector3f(400.0f, 200.0f, 1.0f));
+    triangle.setVertex(1, Vector3f(200.0f, 600.0f, 1.0f));
+    triangle.setVertex(2, Vector3f(600.0f, 600.0f, 1.0f));
     triangle.setColor(0, 255.0f, 0.0f, 0.0f);
+    triangle.setColor(1, 0.0f, 255.0f, 0.0f);
+    triangle.setColor(2, 0.0f, 0.0f, 255.0f);
 
-    drawTriangle(triangle);
-    // triangleRasterize(triangle);
-    // render();
-
-    SDL_RenderCopy(this->window.getRenderer(), this->window.getTexture(), nullptr, nullptr);
-    SDL_RenderPresent(this->window.getRenderer());
+    //drawTriangle(triangle);
+    triangleRasterize(triangle);
+    render();
 }
 
 int Rasterizer::get_index(int x, int y) const{

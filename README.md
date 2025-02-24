@@ -30,4 +30,7 @@ sudo apt-get install libsdl2-dev
 
 ## Screenshots
 ### Bresen Ham's algorithm
-![Bresen Ham's algorithm](Screenshots/bresenham.png)
+![Bresen Ham's algorithm](/ScreenShot/Bresen-ham.png)
+
+### Color Blending
+![Color Blending](/ScreenShot/Color%20Blending.png)
