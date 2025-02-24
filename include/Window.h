@@ -7,17 +7,23 @@
 
 class Window{
 public:
-    static const int HEIGHT = 1080, WIDTH = 960;
-
     Window();
     ~Window();
+
+    SDL_Window* getWindow() const;
+    SDL_Renderer* getRenderer() const;
+    SDL_Texture* getTexture() const;
+
+    int width() const;
+    int height() const;
+
+private:   
+    int w, h;
+    static const int HEIGHT = 960, WIDTH = 1080;
 
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
-
-private:   
-    int w, l;
 };
 
 #endif

@@ -76,6 +76,16 @@ Vector3f Vector3f::operator-(const Vector3f& v) const {
 Vector3f Vector3f::operator*(const float &k) const {
     return Vector3f(this->x * k, this->y * k, this->z * k);
 }
+Vector3f Vector3f::operator*(const Matrix &m) const{
+    Vector3f res;
+    for(int i = 0; i < 3; ++ i){
+        for(int j = 0; j < 3; ++ j){
+            res[i] += (*this)[i] * m[i][j];
+        }
+    }
+
+    return res;
+}
 Vector3f Vector3f::operator/(const float &k) const {
     return Vector3f(this->x / k, this->y / k, this->z / k);
 }

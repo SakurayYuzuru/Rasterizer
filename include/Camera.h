@@ -1,45 +1,39 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#pragma once
+#include <IManager.h>
 
 #include <Math.h>
+#include <Transformation.h>
 
-enum Camera_Movement{
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT
-};
+#include <SDL2/SDL.h>
 
-const float YAW         = -90.0f;
-const float PITCH       =  0.0f;
-const float SPEED       =  2.5f;
-const float SENSITIVITY =  0.1f;
-const float ZOOM        =  45.0f;
+static float speed = 2.5f;
 
-class Camera{
+class Camera : public IManager{
 public:
     Camera();
-    Camera(Vector3f position, Vector3f up, float yaw = YAW, float pitch = PITCH);
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
     ~Camera();
 
-    void ProcessMouseScroll(float yoffset);
+    void Start() override;
+    void Update() override;
+    void Destroy() override;
+
+    Matrix getViewMatrix();
+
+    void updateMovement(float deltaTime);
+    void updateRotation(int &mouseX, int &mouseY, bool &firstMouse, float deltaTime);
 
 private:
-    void updateCameraVectors();
+    void setPos(Vector3f &p);
 
-    Vector3f Position;
-    Vector3f Front;
-    Vector3f Up;
-    Vector3f Right;
-    Vector3f WorldUp;
-    float Yaw;
-    float Pitch;
-    float MovementSpeed;
-    float MouseSensitivity;
-    float Zoom;
+    Vector3f pos;
+    Vector3f front, right, up;
+    float yaw, pitch;
+    float lastTime;
+    bool first_mouse;
+
+    SDL_Event e;
 };
 
 #endif

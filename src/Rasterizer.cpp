@@ -2,18 +2,46 @@
 #include <iostream>
 #include <cstdlib>
 
-Rasterizer::Rasterizer(){ }
-Rasterizer::Rasterizer(Window _window) : window(_window){ }
+Rasterizer::Rasterizer(){
+    Start();
+}
+Rasterizer::~Rasterizer(){
+    Destroy();
+}
 
-Rasterizer::~Rasterizer(){ }
+void Rasterizer::Start(){
+    this->quit = false;
+    this->frame_buf.resize(this->window.height() * this->window.width());
+    this->z_buffer.resize(this->window.height() * this->window.width());
+}
+void Rasterizer::Update(){
+    this->camera.Update();
+    draw();
+}
+void Rasterizer::Destroy(){
+    SDL_DestroyRenderer(this->window.getRenderer());
+    SDL_DestroyWindow(this->window.getWindow());
+    SDL_Quit();
+}
+
+// set MVP Transformation
+void Rasterizer::set_model(const Matrix &m){
+    this->model = m;
+}
+void Rasterizer::set_view(const Matrix &v){
+    this->view = v;
+}
+void Rasterizer::set_projection(const Matrix &p){
+    this->projection = p;
+}
 
 // Bresen Ham's algorithm
-void Rasterizer::drawLine(Vector3f &begin, Vector3f &end){
+void Rasterizer::drawLine(const Vector3f &begin, const Vector3f &end){
     auto x1 = begin.x, y1 = begin.y;
     auto x2 = end.x, y2 = end.y;
 
-    Vector4f line_color(255.0f, 0.0f, 0.0f, 255.0f);
-    SDL_SetRenderDrawColor(this->window.renderer, line_color.x, line_color.y, line_color.z, line_color.w);
+    Color line_color(255.0f, 0.0f, 0.0f, 1.0f);
+    SDL_SetRenderDrawColor(this->window.getRenderer(), line_color.r, line_color.g, line_color.b, line_color.a);
 
     int ox = x2 - x1;
     int oy = y2 - y1;
@@ -36,7 +64,7 @@ void Rasterizer::drawLine(Vector3f &begin, Vector3f &end){
         }
 
         Vector3f point(x, y, 1.0f);
-        SDL_RenderDrawPoint(this->window.renderer, point.x, point.y);
+        set_pixel(point, line_color);
 
         while(x < x2){
             x ++;
@@ -51,7 +79,7 @@ void Rasterizer::drawLine(Vector3f &begin, Vector3f &end){
                 px += twoDyMinusDx;
             }
             point = Vector3f(x, y, 1.0f);
-            SDL_RenderDrawPoint(this->window.renderer, point.x, point.y);
+            set_pixel(point, line_color);
         }
     }else{
         if(y1 > y2){
@@ -64,7 +92,7 @@ void Rasterizer::drawLine(Vector3f &begin, Vector3f &end){
         }
 
         Vector3f point(x, y, 1.0f);
-        SDL_RenderDrawPoint(this->window.renderer, point.x, point.y);
+        set_pixel(point, line_color);
 
         while(y < y2){
             y ++;
@@ -79,33 +107,152 @@ void Rasterizer::drawLine(Vector3f &begin, Vector3f &end){
                 py += twoDxMinusDy;
             }
             point = Vector3f(x, y, 1.0f);
-            SDL_RenderDrawPoint(this->window.renderer, point.x, point.y);
+            set_pixel(point, line_color);
         }
     }
 }
+void Rasterizer::drawTriangle(Triangle &t){
+    drawLine(t.a(), t.b());
+    drawLine(t.b(), t.c());
+    drawLine(t.c(), t.a());
+}
+void Rasterizer::triangleRasterize(const Triangle &t){
+    auto v = t.toVector4();
 
-void Rasterizer::draw(){
-    bool quit = false;
-    SDL_Event e;
+    float min_x = window.width(), max_x = 0;
+    float min_y = window.height(), max_y = 0;
 
-    while(!quit){
-        while(SDL_PollEvent(&e) != 0){
-            if(e.type == SDL_QUIT){
-                quit = true;
-            }
-        }
-
-        Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
-        SDL_SetRenderDrawColor(this->window.renderer, background_color.x, background_color.y, background_color.z, background_color.w);
-        SDL_RenderClear(this->window.renderer);
-        Vector3f start(1.0f, 2.0f, 3.0f);
-        Vector3f end(3.0f, 4.0f, 3.0f);
-        //drawLine(start, end);
-        SDL_RenderDrawLine(this->window.renderer, start.x, start.y, end.x, end.y);
-        SDL_RenderPresent(this->window.renderer);
+    for(int i = 0; i < 3; ++ i){
+        min_x = std::min(v[i].x, min_x);
+        max_x = std::max(v[i].x, max_x);
+        min_y = std::min(v[i].y, min_y);
+        max_y = std::max(v[i].y, max_y);
     }
 
-    SDL_DestroyRenderer(this->window.renderer);
-    SDL_DestroyWindow(this->window.window);
-    SDL_Quit();
+    for(int y = min_y; y < max_y; ++ y){
+        for(int x = min_x; x < max_x; ++ x){
+            if(insideTriangle(static_cast<float>(x) + 0.5f, static_cast<float>(y) + 0.5f, t.v())){
+                auto [alpha, beta, gamma] = computeBarycentric2D(x + 0.5f, y + 0.5f, t.v());
+                float w_reciprocal = 1.0f / (alpha / v[0].w + beta / v[1].w + gamma / v[2].w);
+                float z_interpolated = alpha * v[0].z / v[0].w + beta * v[1].z / v[1].w + gamma * v[2].z / v[2].w;
+                z_interpolated *= w_reciprocal;
+
+                int index = get_index(x, y);
+                if(z_interpolated < z_buffer[index]){
+                    Vector3f p(x, y, z_interpolated);
+                    set_pixel(p, t.getColor());
+                    z_buffer[index] = z_interpolated;
+                }
+            }
+        }
+    }
+}
+void Rasterizer::render() {
+    void* pixels = (void*)malloc(sizeof(void));
+    int pitch;
+    SDL_UpdateTexture(this->window.getTexture(), nullptr, pixels, pitch);
+
+    SDL_LockTexture(this->window.getTexture(), nullptr, &pixels, &pitch);
+
+    for (int y = 0; y < this->window.height(); ++y) {
+        for (int x = 0; x < this->window.width(); ++x) {
+            auto index = get_index(x, y);
+            Color color = frame_buf[index];
+            Uint32* pixel = static_cast<Uint32*>(pixels) + y * (pitch / 4) + x;
+            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), 
+                                 (Uint8)color.r, (Uint8)color.g, (Uint8)color.b, (Uint8)color.a);
+        }
+    }
+
+    SDL_UnlockTexture(this->window.getTexture());
+    
+}
+
+
+void Rasterizer::draw(){
+    while(SDL_PollEvent(&e) != 0){
+        if(e.type == SDL_QUIT){
+            this->quit = true;
+        }
+        if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE){
+            this->quit = true;
+        }
+    }
+
+    Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+    SDL_SetRenderDrawColor(this->window.getRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+    SDL_RenderClear(this->window.getRenderer());
+
+    std::fill(z_buffer.begin(), z_buffer.end(), std::numeric_limits<float>::infinity());
+    std::fill(frame_buf.begin(), frame_buf.end(), Color());
+
+    set_model(Transformation::get_model_matrix(140.0f));
+    set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
+
+    Matrix mvp = projection * view * model;
+
+    Triangle triangle;
+    triangle.setVertex(0, Vector3f(520.0f, 780.0f, 1.0f));
+    triangle.setVertex(1, Vector3f(870.0f, 780.0f, 1.0f));
+    triangle.setVertex(2, Vector3f(520.0f, 260.0f, 1.0f));
+    triangle.setColor(0, 255.0f, 0.0f, 0.0f);
+
+    drawTriangle(triangle);
+    // triangleRasterize(triangle);
+    // render();
+
+    SDL_RenderCopy(this->window.getRenderer(), this->window.getTexture(), nullptr, nullptr);
+    SDL_RenderPresent(this->window.getRenderer());
+}
+
+int Rasterizer::get_index(int x, int y) const{
+    return (this->window.height() - 1 - y) * this->window.width() + x;
+}
+
+int Rasterizer::get_next_ind(){
+    return this->next_id ++;
+}
+
+void Rasterizer::set_pixel(const Vector3f &p, const Color &color){
+    auto index = (this->window.height() - 1 - p.y) * this->window.width() + p.x;
+    this->frame_buf[index] = color;
+}
+
+bool Rasterizer::isQuit() const{
+    return this->quit;
+}
+
+bool Rasterizer::insideTriangle(float x, float y, const std::vector<Vector3f> v){
+    float flag = -1;
+
+    for(int i = 0; i < 3; ++ i){
+        Vector3f p0(x, y, 0);
+        Vector3f p1 = v[i];
+        Vector3f p2 = v[(i + 1) % 3];
+        Vector3f v1 = p1 - p0;
+        Vector3f v2 = p1 - p2;
+
+        float dz = v1.cross(v2).z;
+        if(!dz){
+            continue;
+        }
+
+        int sign = (dz < 0) ? 0 : 1;
+
+        if(flag == -1){
+            flag = sign;
+        }
+        if(flag != sign){
+            return false;
+        }
+    }
+
+    return true;
+}
+std::tuple<float, float, float> Rasterizer::computeBarycentric2D(float x, float y, const std::vector<Vector3f> v){
+    float c1 = (x * (v[1].y - v[2].y) + (v[2].x - v[1].x) * y + v[1].x * v[2].y - v[2].x * v[1].y) / (v[0].x * (v[1].y - v[2].y) + (v[2].x - v[1].x) * v[0].y + v[1].x * v[2].y - v[2].x * v[1].y);
+    float c2 = (x * (v[2].y - v[0].y) + (v[0].x - v[2].x) * y + v[2].x * v[0].y - v[0].x * v[2].y) / (v[1].x * (v[2].y - v[0].y) + (v[0].x - v[2].x) * v[1].y + v[2].x * v[0].y - v[0].x * v[2].y);
+    float c3 = (x * (v[0].y - v[1].y) + (v[1].x - v[0].x) * y + v[0].x * v[1].y - v[1].x * v[0].y) / (v[2].x *( v[0].y - v[1].y) + (v[1].x - v[0].x) * v[2].y + v[0].x * v[1].y - v[1].x * v[0].y);
+    
+    return {c1,c2,c3};
 }

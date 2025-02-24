@@ -1,8 +1,12 @@
+#ifndef MATH_H
+#define MATH_H
+
 #include <iostream>
 #include <vector>
 #include <Global.h>
 
 class Vector4f;
+class Matrix;
 
 float radians(float degrees);
 
@@ -51,6 +55,7 @@ public:
     Vector3f operator+(const Vector3f& v) const;
     Vector3f operator-(const Vector3f& v) const;
     Vector3f operator*(const float &k) const;
+    Vector3f operator*(const Matrix &m) const;
     Vector3f operator/(const float &k) const;
     Vector3f& operator=(const Vector3f& v);
 
@@ -134,3 +139,5 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const Matrix& m);
+
+#endif
