@@ -152,6 +152,16 @@ Vector4f Vector4f::operator-(const Vector4f& v) const {
 Vector4f Vector4f::operator*(const float &k) const {
     return Vector4f(this->x * k, this->y * k, this->z * k, this->w * k);
 }
+Vector4f Vector4f::operator*(const Matrix &m) const{
+    Vector4f res;
+    for(int i = 0; i < 4; ++ i){
+        for(int j = 0; j < 4; ++ j){
+            res[i] += (*this)[i] * m[i][j];
+        }
+    }
+
+    return res;
+}
 Vector4f Vector4f::operator/(const float &k) const {
     return Vector4f(this->x / k, this->y / k, this->z / k, this->w / k);
 }
@@ -176,7 +186,7 @@ Vector4f Vector4f::normalized() const {
     return *this / this->norm();
 }
 Vector3f Vector4f::to_Vector3f() const {
-    return Vector3f(this->x, this->y, this->z);
+    return Vector3f(this->x / this->w, this->y / this->w, this->z / this->w);
 }
 
 float& Vector4f::operator[](int index) {
@@ -261,6 +271,16 @@ Matrix Matrix::operator*(const float &k) const {
         }
     }
     return result;
+}
+Vector4f Matrix::operator*(const Vector4f &v) const{
+    Vector4f res;
+    for(int i = 0; i < 4; ++ i){
+        for(int j = 0; j < 4; ++ j){
+            res[i] += v[i] * (*this)[i][j];
+        }
+    }
+
+    return res;
 }
 Matrix Matrix::operator/(const float &k) const {
     Matrix result(this->rows, this->cols);

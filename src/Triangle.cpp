@@ -48,3 +48,11 @@ std::array<Vector4f, 3> Triangle::toVector4() const{
 
     return res;
 }
+
+Triangle Triangle::operator*(Matrix &m){
+    for(int i = 0; i < 3; ++ i){
+        this->vertexes[i].v = this->vertexes[i].v * m;
+    }
+
+    return *this;
+}

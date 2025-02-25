@@ -10,7 +10,6 @@
 #include <Triangle.h>
 #include <Transformation.h>
 #include <Camera.h>
-#include <Buffers.hpp>
 
 #include <tuple>
 #include <vector>
@@ -35,8 +34,8 @@ public:
 
     // for draw loop
     void draw();
-    void draw(pos_buf_id pos_buf, ind_buf_id ind_buf, Primitive type);
     bool isQuit() const;
+    void bindCamera(std::shared_ptr<Camera> _camera);
 
 private:
     void drawLine(const Vector3f &begin, const Vector3f &end);
@@ -48,6 +47,7 @@ private:
     int get_next_ind();
 
     void set_pixel(const Vector3f &p, const Color &color);
+    void clear();
 
 private:
     // MVP Matrixes
@@ -65,7 +65,7 @@ private:
 
     // Main Components
     SDL_Event e;
-    Camera camera;
+    std::shared_ptr<Camera> camera;
     Window window;
     bool quit;
     int next_id = 0;

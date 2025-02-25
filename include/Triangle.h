@@ -26,6 +26,8 @@ public:
 
     std::array<Vector4f, 3> toVector4() const;
 
+    Triangle operator*(Matrix &m);
+
 private:
     Vertex vertexes[3];
 };

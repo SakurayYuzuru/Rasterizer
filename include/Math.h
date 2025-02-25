@@ -89,6 +89,7 @@ public:
     Vector4f operator+(const Vector4f& v) const;
     Vector4f operator-(const Vector4f& v) const;
     Vector4f operator*(const float &k) const;
+    Vector4f operator*(const Matrix &m) const;
     Vector4f operator/(const float &k) const;
     Vector4f& operator=(const Vector4f& v);
 
@@ -122,6 +123,7 @@ public:
     Matrix operator-(const Matrix& m) const;
     Matrix operator*(const Matrix& m) const;
     Matrix operator*(const float &k) const;
+    Vector4f operator*(const Vector4f &v) const;
     Matrix operator/(const float &k) const;
     Matrix& operator=(const Matrix& m);
 

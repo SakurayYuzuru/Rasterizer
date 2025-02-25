@@ -1,6 +1,7 @@
 #include <Rasterizer.h>
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 
 Rasterizer::Rasterizer(){
     Start();
@@ -15,14 +16,10 @@ void Rasterizer::Start(){
     this->z_buffer.resize(this->window.height() * this->window.width());
 }
 void Rasterizer::Update(){
-    this->camera.Update();
+    this->camera->Update();
     draw();
 }
-void Rasterizer::Destroy(){
-    SDL_DestroyRenderer(this->window.getRenderer());
-    SDL_DestroyWindow(this->window.getWindow());
-    SDL_Quit();
-}
+void Rasterizer::Destroy(){  }
 
 // set MVP Transformation
 void Rasterizer::set_model(const Matrix &m){
@@ -139,8 +136,7 @@ void Rasterizer::triangleRasterize(const Triangle &t){
 
                 int index = get_index(x, y);
                 if(z_interpolated < z_buffer[index]){
-                    Vector3f p(x, y, z_interpolated);
-                    set_pixel(p, Color::lerp(t.getColor(0), t.getColor(1), t.getColor(2), alpha, beta, gamma));
+                    set_pixel(Vector3f(x, y, z_interpolated), Color::lerp(t.getColor(0), t.getColor(1), t.getColor(2), alpha, beta, gamma));
                     z_buffer[index] = z_interpolated;
                 }
             }
@@ -187,20 +183,45 @@ void Rasterizer::draw(){
 
     Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
     SDL_SetRenderDrawColor(this->window.getRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
-    SDL_RenderClear(this->window.getRenderer());
-
-    std::fill(z_buffer.begin(), z_buffer.end(), std::numeric_limits<float>::infinity());
-    std::fill(frame_buf.begin(), frame_buf.end(), Color());
+    
+    clear();
+    int frame_count = 0;
 
     set_model(Transformation::get_model_matrix(140.0f));
+    set_view(this->camera->getViewMatrix());
     set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
-
     Matrix mvp = projection * view * model;
 
+    float f1 = (100 - 0.1) / 2.0;
+    float f2 = (100 + 0.1) / 2.0;
+
     Triangle triangle;
-    triangle.setVertex(0, Vector3f(400.0f, 200.0f, 1.0f));
-    triangle.setVertex(1, Vector3f(200.0f, 600.0f, 1.0f));
-    triangle.setVertex(2, Vector3f(600.0f, 600.0f, 1.0f));
+    triangle.setVertex(0, Vector3f(2.0f, 0.0f, -2.0f));
+    triangle.setVertex(1, Vector3f(0.0f, 2.0f, -2.0f));
+    triangle.setVertex(2, Vector3f(-2.0f, 0.0f, -2.0f));
+
+    Vector4f v[] = {
+        mvp * triangle.a().to_Vector4f(1.0f),
+        mvp * triangle.b().to_Vector4f(1.0f),
+        mvp * triangle.c().to_Vector4f(1.0f)
+    };
+    for (auto& vec : v) {
+        vec = vec / vec.w;
+    }
+
+    for (auto & vert : v){
+        vert.x = std::clamp(vert.x, -1.0f, 1.0f);
+        vert.y = std::clamp(vert.y, -1.0f, 1.0f);
+
+        vert.x = 0.5 * this->window.width() * (vert.x + 1.0);
+        vert.y = 0.5 * this->window.height() * (vert.y + 1.0);
+        vert.z = vert.z * f1 + f2;
+    }
+
+    for (int i = 0; i < 3; ++i){
+        triangle.setVertex(i, v[i].to_Vector3f());
+    }
+
     triangle.setColor(0, 255.0f, 0.0f, 0.0f);
     triangle.setColor(1, 0.0f, 255.0f, 0.0f);
     triangle.setColor(2, 0.0f, 0.0f, 255.0f);
@@ -208,6 +229,7 @@ void Rasterizer::draw(){
     //drawTriangle(triangle);
     triangleRasterize(triangle);
     render();
+    std::cout << "frame count: " << frame_count++ << '\n';
 }
 
 int Rasterizer::get_index(int x, int y) const{
@@ -225,6 +247,10 @@ void Rasterizer::set_pixel(const Vector3f &p, const Color &color){
 
 bool Rasterizer::isQuit() const{
     return this->quit;
+}
+
+void Rasterizer::bindCamera(std::shared_ptr<Camera> _camera){
+    this->camera = _camera;
 }
 
 bool Rasterizer::insideTriangle(float x, float y, const std::vector<Vector3f> v){
@@ -260,4 +286,10 @@ std::tuple<float, float, float> Rasterizer::computeBarycentric2D(float x, float 
     float c3 = (x * (v[0].y - v[1].y) + (v[1].x - v[0].x) * y + v[0].x * v[1].y - v[1].x * v[0].y) / (v[2].x *( v[0].y - v[1].y) + (v[1].x - v[0].x) * v[2].y + v[0].x * v[1].y - v[1].x * v[0].y);
     
     return {c1,c2,c3};
+}
+
+void Rasterizer::clear() {
+    SDL_RenderClear(this->window.getRenderer());
+    std::fill(z_buffer.begin(), z_buffer.end(), std::numeric_limits<float>::infinity());
+    std::fill(frame_buf.begin(), frame_buf.end(), Color());
 }

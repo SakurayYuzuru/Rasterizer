@@ -1,5 +1,4 @@
 #include <Camera.h>
-#include <Time.hpp>
 
 Camera::Camera(){
     Start();
@@ -10,22 +9,24 @@ Camera::~Camera(){
 
 void Camera::Start(){
     this->front = Vector3f(0.0f, 0.0f, -1.0f);
-    this->up = Vector3f(0.0f, 1.0f, 0.0f);
+    this->up = Vector3f(0.0f, -1.0f, 0.0f);
     this-> right = this->front.cross(this->up);
     this->yaw = 0.0f;
     this->pitch = 0.0f;
     this->first_mouse = true;
 
-    Vector3f p(1080.0f / 2, -960.0f / 2, 1.0f);
+    Vector3f p(0.0f, 0.0f, 10.0f);
     setPos(p);
     this->lastTime = SDL_GetTicks();
 }
 void Camera::Update(){
-    updateMovement(Time::deltaTime(lastTime));
+    this->lastTime = deltaTime();
+
+    updateMovement(this->lastTime);
 
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
-    updateRotation(mouseX, mouseY, first_mouse, Time::deltaTime(lastTime));
+    updateRotation(mouseX, mouseY, first_mouse, this->lastTime);
 }
 void Camera::Destroy(){ }
 
@@ -78,4 +79,12 @@ void Camera::updateRotation(int &mouseX, int &mouseY, bool &firstMouse, float de
 
 void Camera::setPos(Vector3f &p){
     this->pos = p;
+}
+
+float Camera::deltaTime(){
+    uint32_t currentTime = SDL_GetTicks();
+    float deltaTime = (currentTime - this->lastTime) / 1000.0f;
+    lastTime = currentTime;
+
+    return deltaTime;
 }

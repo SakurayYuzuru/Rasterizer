@@ -7,8 +7,9 @@
 #include <Transformation.h>
 
 #include <SDL2/SDL.h>
+#include <cstdint>
 
-static float speed = 2.5f;
+static float speed = 300.0f;
 
 class Camera : public IManager{
 public:
@@ -21,6 +22,8 @@ public:
 
     Matrix getViewMatrix();
 
+    float deltaTime();
+
     void updateMovement(float deltaTime);
     void updateRotation(int &mouseX, int &mouseY, bool &firstMouse, float deltaTime);
 
@@ -30,7 +33,7 @@ private:
     Vector3f pos;
     Vector3f front, right, up;
     float yaw, pitch;
-    float lastTime;
+    uint32_t lastTime;
     bool first_mouse;
 
     SDL_Event e;
