@@ -38,16 +38,23 @@ public:
     void bindCamera(std::shared_ptr<Camera> _camera);
 
 private:
+    // rst
     void drawLine(const Vector3f &begin, const Vector3f &end);
     void drawTriangle(Triangle &t);
     void triangleRasterize(const Triangle &t);
     void render();
 
+    // index
     int get_index(int x, int y) const;
     int get_next_ind();
 
     void set_pixel(const Vector3f &p, const Color &color);
     void clear();
+
+    // Event System
+    void processInput();
+    void mouse_callback(SDL_Event &e, bool &inLoop);
+    void scroll_callback(SDL_Event &e);
 
 private:
     // MVP Matrixes

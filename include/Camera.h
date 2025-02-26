@@ -37,7 +37,13 @@ public:
     Matrix getViewMatrix();
 
     float deltaTime();
-    void handleEvent(SDL_Event &_e);
+
+    void ProcessKeyboard(Camera_Movement dir);
+    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch);
+    void ProcessMouseScroll(float yoffset);
+
+private:
+    void updateCameraVectors();
 
 private:
     Vector3f position;
@@ -50,6 +56,8 @@ private:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    
+    uint32_t lastTime;
 };
 
 #endif

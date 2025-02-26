@@ -173,15 +173,16 @@ std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
 }
 
 void Rasterizer::draw(){
+    bool inLoop = true;
     while(SDL_PollEvent(&e)){
         if(e.type == SDL_QUIT){
             this->quit = true;
         }
-        if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE){
-            this->quit = true;
+        processInput();
+        if(inLoop){
+            mouse_callback(e, inLoop);
         }
-
-        this->camera->handleEvent(e);
+        scroll_callback(e);
     }
 
     Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
@@ -231,7 +232,6 @@ void Rasterizer::draw(){
     //drawTriangle(triangle);
     triangleRasterize(triangle);
     render();
-    std::cout << "frame count: " << frame_count++ << '\n';
 }
 
 int Rasterizer::get_index(int x, int y) const{
@@ -294,4 +294,54 @@ void Rasterizer::clear() {
     SDL_RenderClear(this->window.getRenderer());
     std::fill(z_buffer.begin(), z_buffer.end(), std::numeric_limits<float>::infinity());
     std::fill(frame_buf.begin(), frame_buf.end(), Color());
+}
+
+void Rasterizer::processInput(){
+    if(e.type == SDL_KEYDOWN){
+        if(e.key.keysym.sym == SDLK_ESCAPE){
+            this->quit = true;
+        }
+
+        if(e.key.keysym.sym == SDLK_w){
+            this->camera->ProcessKeyboard(FORWARD);
+        }
+        if(e.key.keysym.sym == SDLK_s){
+            this->camera->ProcessKeyboard(BACKWARD);
+        }
+        if(e.key.keysym.sym == SDLK_a){
+            this->camera->ProcessKeyboard(LEFT);
+        }
+        if(e.key.keysym.sym == SDLK_d){
+            this->camera->ProcessKeyboard(RIGHT);
+        }
+    }
+}
+
+void Rasterizer::mouse_callback(SDL_Event &e, bool &inLoop){
+    inLoop = false;
+
+    int xpos, ypos;
+    SDL_GetMouseState(&xpos, &ypos);
+
+    static float lastX = this->window.width() / 2.0f;
+    static float lastY = this->window.height() / 2.0f;
+    static bool firstMouse = true;
+
+    if(firstMouse){
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    this->camera->ProcessMouseMovement(xoffset, yoffset, true);
+}
+
+void Rasterizer::scroll_callback(SDL_Event &e){
+    this->camera->ProcessMouseScroll(e.wheel.y);
 }
