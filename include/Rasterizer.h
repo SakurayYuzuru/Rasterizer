@@ -64,11 +64,12 @@ private:
     std::tuple<float, float, float> computeBarycentric2D(float x, float y, const std::vector<Vector3f> v);
 
     // Main Components
-    SDL_Event e;
     std::shared_ptr<Camera> camera;
     Window window;
     bool quit;
     int next_id = 0;
+    int frame_count;
+    SDL_Event e;
 };
 
 #endif

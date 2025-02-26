@@ -1,6 +1,8 @@
 #ifndef VERTEX_HPP
 #define VERTEX_HPP
 
+#pragma once
+
 #include <Math.h>
 #include <Color.hpp>
 

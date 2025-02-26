@@ -11,6 +11,7 @@ Rasterizer::~Rasterizer(){
 }
 
 void Rasterizer::Start(){
+    this->frame_count = 0;
     this->quit = false;
     this->frame_buf.resize(this->window.height() * this->window.width());
     this->z_buffer.resize(this->window.height() * this->window.width());
@@ -172,20 +173,21 @@ std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
 }
 
 void Rasterizer::draw(){
-    while(SDL_PollEvent(&e) != 0){
+    while(SDL_PollEvent(&e)){
         if(e.type == SDL_QUIT){
             this->quit = true;
         }
         if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE){
             this->quit = true;
         }
+
+        this->camera->handleEvent(e);
     }
 
     Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
     SDL_SetRenderDrawColor(this->window.getRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
     
     clear();
-    int frame_count = 0;
 
     set_model(Transformation::get_model_matrix(140.0f));
     set_view(this->camera->getViewMatrix());

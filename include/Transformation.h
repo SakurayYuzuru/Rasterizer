@@ -1,3 +1,8 @@
+#ifndef TRANSFORMATION_H
+#define TRANSFORMATION_H
+
+#pragma once
+
 #include <Camera.h>
 #include <Global.h>
 
@@ -11,3 +16,5 @@ namespace Transformation{
     Matrix get_model_matrix(const float& angle);
     Matrix get_projection_matrix(const float& eye_fov, const float& aspect_ratio, const float& zNear, const float& zFar);
 };
+
+#endif

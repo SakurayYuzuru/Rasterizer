@@ -1,6 +1,8 @@
 #ifndef COLOR_HPP
 #define COLOR_HPP
 
+#pragma once
+
 #include <cstdint>
 
 struct Color{

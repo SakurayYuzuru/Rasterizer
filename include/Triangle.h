@@ -1,6 +1,8 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#pragma once
+
 #include <Vertex.hpp>
 #include <array>
 #include <vector>

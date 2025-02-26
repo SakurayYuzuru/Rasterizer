@@ -1,15 +1,29 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#pragma once
+
 #include <IManager.h>
 
 #include <Math.h>
 #include <Transformation.h>
+#include <Global.h>
 
 #include <SDL2/SDL.h>
 #include <cstdint>
 
-static float speed = 300.0f;
+enum Camera_Movement {
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
+
+static const float YAW         = -90.0f;
+static const float PITCH       =  0.0f;
+static const float SPEED       =  2.5f;
+static const float SENSITIVITY =  0.1f;
+static const float ZOOM        =  45.0f;
 
 class Camera : public IManager{
 public:
@@ -23,20 +37,19 @@ public:
     Matrix getViewMatrix();
 
     float deltaTime();
-
-    void updateMovement(float deltaTime);
-    void updateRotation(int &mouseX, int &mouseY, bool &firstMouse, float deltaTime);
+    void handleEvent(SDL_Event &_e);
 
 private:
-    void setPos(Vector3f &p);
-
-    Vector3f pos;
-    Vector3f front, right, up;
-    float yaw, pitch;
-    uint32_t lastTime;
-    bool first_mouse;
-
-    SDL_Event e;
+    Vector3f position;
+    Vector3f front;
+    Vector3f up;
+    Vector3f right;
+    Vector3f worldUp;
+    float Yaw;
+    float Pitch;
+    float MovementSpeed;
+    float MouseSensitivity;
+    float Zoom;
 };
 
 #endif

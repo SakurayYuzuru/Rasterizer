@@ -1,14 +1,14 @@
 #ifndef MATH_H
 #define MATH_H
 
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <Global.h>
 
 class Vector4f;
 class Matrix;
-
-float radians(float degrees);
 
 class Vector2f {
     friend std::ostream& operator<<(std::ostream& os, const Vector2f& v);
@@ -141,5 +141,8 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const Matrix& m);
+
+float radians(float degrees);
+Vector3f radians(Vector3f &angle);
 
 #endif

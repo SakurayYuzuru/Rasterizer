@@ -3,6 +3,9 @@
 float radians(float degrees) {
     return degrees * PI / 180;
 }
+Vector3f radians(Vector3f &angle){
+    return Vector3f(angle.x / PI * 180.0f, angle.y / PI * 180.0f, angle.z / PI * 180.0f);
+}
 
 Vector2f::Vector2f() : x(0), y(0) {}
 Vector2f::Vector2f(float x, float y) : x(x), y(y) {}
