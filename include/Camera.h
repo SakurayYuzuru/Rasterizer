@@ -40,7 +40,6 @@ public:
 
     void ProcessKeyboard(Camera_Movement dir);
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch);
-    void ProcessMouseScroll(float yoffset);
 
 private:
     void updateCameraVectors();

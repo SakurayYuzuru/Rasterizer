@@ -8,11 +8,13 @@ Camera::~Camera(){
 }
 
 void Camera::Start(){
-    this->position = Vector3f(0.0f, 0.0f, -5.0f);
+    this->position = Vector3f(0.0f, 0.0f, 5.0f);
     this->up = Vector3f(0.0f, 1.0f, 0.0f);
+    this->worldUp = this->up;
     this->Yaw = YAW;
     this->Pitch = PITCH;
-    this->front = Vector3f(0.0f, 0.0f, -1.0f);
+    this->front = Vector3f(0.0f, 0.0f, 1.0f);
+    this->right = this->front.cross(this->worldUp).normalized();
     this->MovementSpeed = SPEED;
     this->MouseSensitivity = SENSITIVITY;
     this->Zoom = ZOOM;
@@ -39,10 +41,10 @@ void Camera::ProcessKeyboard(Camera_Movement dir){
     float delta_time = deltaTime();
     float velocity = MovementSpeed * delta_time;
     if(dir == FORWARD){
-        this->position = this->position + this->front * velocity;
+        this->position = this->position - this->front * velocity;
     }
     if(dir == BACKWARD){
-        this->position = this->position - this->front * velocity;
+        this->position = this->position + this->front * velocity;
     }
     if(dir == LEFT){
         this->position = this->position - this->right * velocity;
@@ -69,16 +71,6 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
     }
 
     updateCameraVectors();
-}
-
-void Camera::ProcessMouseScroll(float yoffset){
-    this->Zoom -= static_cast<float>(yoffset);
-    if(this->Zoom < 1.0f){
-        this->Zoom = 1.0f;
-    }
-    if(this->Zoom > 45.0f){
-        this->Zoom = 45.0f;
-    }
 }
 
 void Camera::updateCameraVectors(){

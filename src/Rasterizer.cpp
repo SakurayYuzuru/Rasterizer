@@ -173,18 +173,19 @@ std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
 }
 
 void Rasterizer::draw(){
-    bool inLoop = true;
+    bool inmouse = true;
     while(SDL_PollEvent(&e)){
         if(e.type == SDL_QUIT){
             this->quit = true;
         }
-        processInput();
-        if(inLoop){
-            mouse_callback(e, inLoop);
+        if(e.type == SDL_KEYDOWN){
+            processInput();
         }
-        scroll_callback(e);
+        if(e.type == SDL_MOUSEMOTION && inmouse){
+            mouse_callback(e, inmouse);
+        }
     }
-
+    
     Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
     SDL_SetRenderDrawColor(this->window.getRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
     
@@ -297,23 +298,21 @@ void Rasterizer::clear() {
 }
 
 void Rasterizer::processInput(){
-    if(e.type == SDL_KEYDOWN){
-        if(e.key.keysym.sym == SDLK_ESCAPE){
-            this->quit = true;
-        }
+    if(e.key.keysym.sym == SDLK_ESCAPE){
+        this->quit = true;
+    }
 
-        if(e.key.keysym.sym == SDLK_w){
-            this->camera->ProcessKeyboard(FORWARD);
-        }
-        if(e.key.keysym.sym == SDLK_s){
-            this->camera->ProcessKeyboard(BACKWARD);
-        }
-        if(e.key.keysym.sym == SDLK_a){
-            this->camera->ProcessKeyboard(LEFT);
-        }
-        if(e.key.keysym.sym == SDLK_d){
-            this->camera->ProcessKeyboard(RIGHT);
-        }
+    if(e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP){
+        this->camera->ProcessKeyboard(FORWARD);
+    }
+    if(e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN){
+        this->camera->ProcessKeyboard(BACKWARD);
+    }
+    if(e.key.keysym.sym == SDLK_a || e.key.keysym.sym == SDLK_LEFT){
+        this->camera->ProcessKeyboard(LEFT);
+    }
+    if(e.key.keysym.sym == SDLK_d || e.key.keysym.sym == SDLK_RIGHT){
+        this->camera->ProcessKeyboard(RIGHT);
     }
 }
 
@@ -340,8 +339,4 @@ void Rasterizer::mouse_callback(SDL_Event &e, bool &inLoop){
     lastY = ypos;
 
     this->camera->ProcessMouseMovement(xoffset, yoffset, true);
-}
-
-void Rasterizer::scroll_callback(SDL_Event &e){
-    this->camera->ProcessMouseScroll(e.wheel.y);
 }
