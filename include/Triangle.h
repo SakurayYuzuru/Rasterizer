@@ -10,6 +10,7 @@
 class Triangle{
 public:
     Triangle();
+    Triangle(Vector3f p0, Vector3f p1, Vector3f p2);
     ~Triangle() = default;
 
     Vector3f a();

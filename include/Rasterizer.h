@@ -10,6 +10,7 @@
 #include <Triangle.h>
 #include <Transformation.h>
 #include <Camera.h>
+#include <Mesh.h>
 
 #include <tuple>
 #include <vector>
@@ -33,16 +34,18 @@ public:
     std::unique_ptr<uint32_t[]> frame_buffer() const;
 
     // for draw loop
-    void draw();
+    void render();
     bool isQuit() const;
+
+    // Bind Attributes
     void bindCamera(std::shared_ptr<Camera> _camera);
+    void bindMeshes(std::vector<Mesh>& _meshes);
 
 private:
     // rst
     void drawLine(const Vector3f &begin, const Vector3f &end);
     void drawTriangle(Triangle &t);
     void triangleRasterize(const Triangle &t);
-    void render();
 
     // index
     int get_index(int x, int y) const;
@@ -71,6 +74,7 @@ private:
     std::tuple<float, float, float> computeBarycentric2D(float x, float y, const std::vector<Vector3f> v);
 
     // Main Components
+    std::vector<Mesh> meshes;
     std::shared_ptr<Camera> camera;
     Window window;
     bool quit;

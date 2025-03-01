@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <Texture.h>
+
 #include <SDL2/SDL.h>
 
 class Window{
@@ -12,7 +14,9 @@ public:
 
     SDL_Window* getWindow() const;
     SDL_Renderer* getRenderer() const;
-    SDL_Texture* getTexture() const;
+    Texture getTexture() const;
+
+    void present();
 
     int width() const;
     int height() const;
@@ -23,7 +27,7 @@ private:
 
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_Texture *texture;
+    Texture texture;
 };
 
 #endif

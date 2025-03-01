@@ -21,19 +21,10 @@ Window::Window() : h(HEIGHT), w(WIDTH){
         SDL_Quit();
         exit(EXIT_FAILURE);
     }
-
-    this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, this->HEIGHT, this->WIDTH);
-    if(this->texture == nullptr){
-        std::cerr << "SDL::TEXTURE::CREATE::ERROR: " << SDL_GetError() << std::endl;
-        SDL_DestroyRenderer(this->renderer);
-        SDL_DestroyWindow(this->window);
-        SDL_Quit();
-        exit(EXIT_FAILURE);
-    }
 }
 
 Window::~Window(){
-    SDL_DestroyTexture(this->texture);
+    this->texture.clear();
     SDL_DestroyRenderer(this->renderer);
     SDL_DestroyWindow(this->window);
     SDL_Quit();
@@ -52,6 +43,10 @@ SDL_Window* Window::getWindow() const{
 SDL_Renderer* Window::getRenderer() const{
     return this->renderer;
 }
-SDL_Texture* Window::getTexture() const{
+Texture Window::getTexture() const{
     return this->texture;
+}
+
+void Window::present(){
+    SDL_RenderPresent(this->renderer);
 }

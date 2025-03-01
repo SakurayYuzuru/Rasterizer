@@ -7,6 +7,11 @@ Triangle::Triangle(){
     vertexes[1] = Vertex();
     vertexes[2] = Vertex();
 }
+Triangle::Triangle(Vector3f p0, Vector3f p1, Vector3f p2){
+    setVertex(0, p0);
+    setVertex(1, p1);
+    setVertex(2, p2);
+}
 
 Vector3f Triangle::a(){
     return this->vertexes[0].v;

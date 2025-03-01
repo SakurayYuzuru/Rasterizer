@@ -18,7 +18,7 @@ void Rasterizer::Start(){
 }
 void Rasterizer::Update(){
     this->camera->Update();
-    draw();
+    render();
 }
 void Rasterizer::Destroy(){  }
 
@@ -145,34 +145,6 @@ void Rasterizer::triangleRasterize(const Triangle &t){
     }
 }
 void Rasterizer::render() {
-    void* pixels;
-    int pitch;
-    SDL_LockTexture(this->window.getTexture(), nullptr, &pixels, &pitch);
-
-    for (int y = 0; y < this->window.height(); ++y) {
-        for (int x = 0; x < this->window.width(); ++x) {
-            auto index = get_index(x, y);
-            Color color = frame_buf[index];
-            Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
-            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
-        }
-    }
-
-    SDL_UnlockTexture(this->window.getTexture());
-    SDL_RenderCopy(this->window.getRenderer(), this->window.getTexture(), nullptr, nullptr);
-    SDL_RenderPresent(this->window.getRenderer());
-}
-
-std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
-    std::unique_ptr<uint32_t[]> fb = std::make_unique<uint32_t[]>(this->window.height() * this->window.width());
-    for(int i = 0; i < frame_buf.size(); ++ i){
-        fb.get()[i] = frame_buf[i].toUInt();
-    }
-
-    return std::move(fb);
-}
-
-void Rasterizer::draw(){
     bool inmouse = true;
     while(SDL_PollEvent(&e)){
         if(e.type == SDL_QUIT){
@@ -185,10 +157,10 @@ void Rasterizer::draw(){
             mouse_callback(e, inmouse);
         }
     }
-    
+
     Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
     SDL_SetRenderDrawColor(this->window.getRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
-    
+
     clear();
 
     set_model(Transformation::get_model_matrix(140.0f));
@@ -196,43 +168,56 @@ void Rasterizer::draw(){
     set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
     Matrix mvp = projection * view * model;
 
-    float f1 = (100 - 0.1) / 2.0;
-    float f2 = (100 + 0.1) / 2.0;
+    for (auto& mesh : meshes) {
+        mesh.MVP(mvp);
+        for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+            unsigned int idx0 = mesh.indices[i];
+            unsigned int idx1 = mesh.indices[i + 1];
+            unsigned int idx2 = mesh.indices[i + 2];
 
-    Triangle triangle;
-    triangle.setVertex(0, Vector3f(2.0f, 0.0f, -2.0f));
-    triangle.setVertex(1, Vector3f(0.0f, 2.0f, -2.0f));
-    triangle.setVertex(2, Vector3f(-2.0f, 0.0f, -2.0f));
+            Vertex v0 = mesh.vertices[idx0];
+            Vertex v1 = mesh.vertices[idx1];
+            Vertex v2 = mesh.vertices[idx2];
 
-    Vector4f v[] = {
-        mvp * triangle.a().to_Vector4f(1.0f),
-        mvp * triangle.b().to_Vector4f(1.0f),
-        mvp * triangle.c().to_Vector4f(1.0f)
-    };
-    for (auto& vec : v) {
-        vec = vec / vec.w;
+            Vector3f p0 = v0.v;
+            Vector3f p1 = v1.v;
+            Vector3f p2 = v2.v;
+
+            p0.x /= p0.z;
+            p0.y /= p0.z;
+            p1.x /= p1.z;
+            p1.y /= p1.z;
+            p2.x /= p2.z;
+
+            p0.x = (p0.x + 1) * 0.5f * window.width();
+            p0.y = (p0.y + 1) * 0.5f * window.height();
+            p1.x = (p1.x + 1) * 0.5f * window.width();
+            p1.y = (p1.y + 1) * 0.5f * window.height();
+            p2.x = (p2.x + 1) * 0.5f * window.width();
+            p2.y = (p2.y + 1) * 0.5f * window.height();
+
+            Triangle triangle(p0, p1, p2);
+
+            if (!mesh.textures.empty()) {
+                Texture& texture = mesh.textures[0];
+                texture.render(window.getRenderer(), p0.x, p0.y, p1.x - p0.x, p2.y - p0.y);
+            }
+
+            triangleRasterize(triangle);
+        }
     }
 
-    for (auto & vert : v){
-        vert.x = std::clamp(vert.x, -1.0f, 1.0f);
-        vert.y = std::clamp(vert.y, -1.0f, 1.0f);
+    window.present();
+}
 
-        vert.x = 0.5 * this->window.width() * (vert.x + 1.0);
-        vert.y = 0.5 * this->window.height() * (vert.y + 1.0);
-        vert.z = vert.z * f1 + f2;
+
+std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
+    std::unique_ptr<uint32_t[]> fb = std::make_unique<uint32_t[]>(this->window.height() * this->window.width());
+    for(int i = 0; i < frame_buf.size(); ++ i){
+        fb.get()[i] = frame_buf[i].toUInt();
     }
 
-    for (int i = 0; i < 3; ++i){
-        triangle.setVertex(i, v[i].to_Vector3f());
-    }
-
-    triangle.setColor(0, 255.0f, 0.0f, 0.0f);
-    triangle.setColor(1, 0.0f, 255.0f, 0.0f);
-    triangle.setColor(2, 0.0f, 0.0f, 255.0f);
-
-    //drawTriangle(triangle);
-    triangleRasterize(triangle);
-    render();
+    return std::move(fb);
 }
 
 int Rasterizer::get_index(int x, int y) const{
@@ -254,6 +239,9 @@ bool Rasterizer::isQuit() const{
 
 void Rasterizer::bindCamera(std::shared_ptr<Camera> _camera){
     this->camera = _camera;
+}
+void Rasterizer::bindMeshes(std::vector<Mesh>& _meshes){
+    this->meshes = _meshes;
 }
 
 bool Rasterizer::insideTriangle(float x, float y, const std::vector<Vector3f> v){
