@@ -21,7 +21,7 @@ enum Camera_Movement {
 
 static const float YAW         = -90.0f;
 static const float PITCH       =  0.0f;
-static const float SPEED       =  2.5f;
+static const float SPEED       =  0.5f;
 static const float SENSITIVITY =  0.1f;
 static const float ZOOM        =  45.0f;
 
@@ -30,11 +30,7 @@ public:
     Camera();
     ~Camera();
 
-    void Start() override;
-    void Update() override;
-    void Destroy() override;
-
-    Matrix getViewMatrix();
+    Math::Matrix getViewMatrix();
 
     float deltaTime();
 
@@ -42,14 +38,18 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch);
 
 private:
+    void Start() override;
+    void Update() override;
+    void Destroy() override;
+
     void updateCameraVectors();
 
 private:
-    Vector3f position;
-    Vector3f front;
-    Vector3f up;
-    Vector3f right;
-    Vector3f worldUp;
+    Math::Vector3f position;
+    Math::Vector3f front;
+    Math::Vector3f up;
+    Math::Vector3f right;
+    Math::Vector3f worldUp;
     float Yaw;
     float Pitch;
     float MovementSpeed;

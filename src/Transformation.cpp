@@ -1,7 +1,7 @@
 #include <Transformation.h>
 
-Matrix Transformation::scale(const float& k){
-    Matrix scale = Matrix::Identity();
+Math::Matrix Transformation::scale(const float& k){
+    Math::Matrix scale = Math::Matrix::Identity();
 
     for (int i = 0; i < 4; ++ i) {
         for(int j = 0; j < 4; ++ j) {
@@ -16,8 +16,8 @@ Matrix Transformation::scale(const float& k){
     return scale;
 }
 
-Matrix Transformation::translate(const Vector3f& v){
-    Matrix translate = Matrix::Identity();
+Math::Matrix Transformation::translate(const Math::Vector3f& v){
+    Math::Matrix translate = Math::Matrix::Identity();
 
     for (int i = 0; i < 4; ++ i) {
         for(int j = 0; j < 4; ++ j) {
@@ -34,12 +34,12 @@ Matrix Transformation::translate(const Vector3f& v){
     return translate;
 }
 
-Matrix Transformation::rotate(const float& angle, const Vector3f& v){
-    Matrix rotation = Matrix::Identity();
+Math::Matrix Transformation::rotate(const float& angle, const Math::Vector3f& v){
+    Math::Matrix rotation = Math::Matrix::Identity();
     float theta = angle * PI / 180.0f;
     float sin = std::sin(theta / 2), cos = std::cos(theta / 2);
-    Vector3f axis = v.normalized();
-    Matrix quaternion(4, 4);
+    Math::Vector3f axis = v.normalized();
+    Math::Matrix quaternion(4, 4);
 
     quaternion[0][0] = axis.x * axis.x * (1 - cos) + cos;
     quaternion[0][1] = axis.x * axis.y * (1 - cos) + axis.z * sin;
@@ -66,12 +66,12 @@ Matrix Transformation::rotate(const float& angle, const Vector3f& v){
     return rotation;
 }
 
-Matrix Transformation::lookat(const Vector3f& eye, const Vector3f& target, const Vector3f& up){
-    Vector3f f = (target - eye).normalized();
-    Vector3f r = f.cross(up).normalized();
-    Vector3f u = r.cross(f).normalized();
+Math::Matrix Transformation::lookat(const Math::Vector3f& eye, const Math::Vector3f& target, const Math::Vector3f& up){
+    Math::Vector3f f = (target - eye).normalized();
+    Math::Vector3f r = f.cross(up).normalized();
+    Math::Vector3f u = r.cross(f).normalized();
 
-    Matrix lookat = Matrix::Identity();
+    Math::Matrix lookat = Math::Matrix::Identity();
 
     for (int i = 0; i < 3; ++ i) {
         lookat[0][i] = r[i];
@@ -86,8 +86,8 @@ Matrix Transformation::lookat(const Vector3f& eye, const Vector3f& target, const
     return lookat;
 }
 
-Matrix Transformation::get_view_matrix(const Vector3f& eye_pos){
-    Matrix view = Matrix::Identity();
+Math::Matrix Transformation::get_view_matrix(const Math::Vector3f& eye_pos){
+    Math::Matrix view = Math::Matrix::Identity();
 
     view[0][3] = -eye_pos.x;
     view[1][3] = -eye_pos.y;
@@ -96,18 +96,18 @@ Matrix Transformation::get_view_matrix(const Vector3f& eye_pos){
     return view;
 }
 
-Matrix Transformation::get_model_matrix(const float& angle){
-    Matrix model = Matrix::Identity();
+Math::Matrix Transformation::get_model_matrix(const float& angle){
+    Math::Matrix model = Math::Matrix::Identity();
     float theta = angle * PI / 180.0f;
-    Matrix rotation = rotate(theta, Vector3f(0, 0, 1));
+    Math::Matrix rotation = Transformation::rotate(theta, Math::Vector3f(0, 0, 1));
 
     model = rotation * model;
 
     return model;
 }
 
-Matrix Transformation::get_projection_matrix(const float& eye_fov, const float& aspect_ratio, const float& zNear, const float& zFar){
-    Matrix projection = Matrix::Identity();
+Math::Matrix Transformation::get_projection_matrix(const float& eye_fov, const float& aspect_ratio, const float& zNear, const float& zFar){
+    Math::Matrix projection = Math::Matrix::Identity();
 
     float halfTheta = eye_fov * PI / 180.0f / 2.0f;
     float t = -std::tan(halfTheta) * zNear;
@@ -115,17 +115,17 @@ Matrix Transformation::get_projection_matrix(const float& eye_fov, const float& 
     float l = t * aspect_ratio;
     float r = -l;
 
-    Matrix ortho = Matrix::Identity();
+    Math::Matrix ortho = Math::Matrix::Identity();
     ortho[0][0] = 2 / (r - l);
     ortho[1][1] = 2 / (t - b);
     ortho[2][2] = -2 / (zFar - zNear);
 
-    Matrix translate = Matrix::Identity();
+    Math::Matrix translate = Math::Matrix::Identity();
     translate[0][3] = -(r + l) / (r - l);
     translate[1][3] = -(t + b) / (t - b);
     translate[2][3] = -(zFar + zNear) / (zFar - zNear);
 
-    Matrix persp2ortho = Matrix::Identity();
+    Math::Matrix persp2ortho = Math::Matrix::Identity();
     persp2ortho[0][0] = zNear;
     persp2ortho[1][1] = zNear;
     persp2ortho[2][2] = zNear + zFar;

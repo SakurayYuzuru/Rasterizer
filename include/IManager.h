@@ -6,7 +6,7 @@
 #include <SDL2/SDL.h>
 
 class IManager{
-public:
+protected:
     virtual ~IManager() = default;
 
     virtual void Start() = 0;

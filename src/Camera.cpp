@@ -8,24 +8,22 @@ Camera::~Camera(){
 }
 
 void Camera::Start(){
-    this->position = Vector3f(0.0f, 0.0f, 5.0f);
-    this->up = Vector3f(0.0f, 1.0f, 0.0f);
+    this->position = Math::Vector3f(0.0f, 0.0f, 5.0f);
+    this->up = Math::Vector3f(0.0f, 1.0f, 0.0f);
     this->worldUp = this->up;
     this->Yaw = YAW;
     this->Pitch = PITCH;
-    this->front = Vector3f(0.0f, 0.0f, 1.0f);
+    this->front = Math::Vector3f(0.0f, 0.0f, 1.0f);
     this->right = this->front.cross(this->worldUp).normalized();
     this->MovementSpeed = SPEED;
     this->MouseSensitivity = SENSITIVITY;
     this->Zoom = ZOOM;
     this->lastTime = SDL_GetTicks();
 }
-void Camera::Update(){
-
-}
+void Camera::Update(){ }
 void Camera::Destroy(){ }
 
-Matrix Camera::getViewMatrix(){
+Math::Matrix Camera::getViewMatrix(){
     return Transformation::lookat(this->position, this->position + this->front, this->up);
 }
 
@@ -74,9 +72,9 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
 }
 
 void Camera::updateCameraVectors(){
-    Vector3f _front(std::cos(radians(Yaw) * std::cos(radians(Pitch))),
-                    std::sin(radians(Pitch)),
-                    std::sin(radians(Yaw) * std::cos(Pitch)));
+    Math::Vector3f _front(std::cos(Math::radians(Yaw) * std::cos(Math::radians(Pitch))),
+                    std::sin(Math::radians(Pitch)),
+                    std::sin(Math::radians(Yaw) * std::cos(Pitch)));
     
     this->front = _front.normalized();
     this->right = this->front.cross(this->worldUp).normalized();

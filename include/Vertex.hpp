@@ -7,16 +7,16 @@
 #include <Color.hpp>
 
 struct Vertex{
-    Vector3f v;
-    Vector2f uv;
+    Math::Vector3f v;
+    Math::Vector2f uv;
     Color color;
-    Vector3f normal;
+    Math::Vector3f normal;
 
     Vertex(){
-        v = Vector3f();
-        uv = Vector2f();
+        v = Math::Vector3f::Identity();
+        uv = Math::Vector2f::Identity();
         color = Color();
-        normal = Vector3f();
+        normal = Math::Vector3f::Identity();
     }
 
     float x() const{
@@ -28,6 +28,12 @@ struct Vertex{
     float z() const{
         return this->v.z;
     }
+};
+
+struct Face{
+    int index;
+    int uvIndex;
+    int nIndex;
 };
 
 #endif

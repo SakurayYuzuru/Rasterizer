@@ -17,24 +17,29 @@ void Rasterizer::Start(){
     this->z_buffer.resize(this->window.height() * this->window.width());
 }
 void Rasterizer::Update(){
-    this->camera->Update();
     draw();
 }
 void Rasterizer::Destroy(){  }
 
+void Rasterizer::Execute(){
+    while(!this->quit){
+        Update();
+    }
+}
+
 // set MVP Transformation
-void Rasterizer::set_model(const Matrix &m){
+void Rasterizer::set_model(const Math::Matrix &m){
     this->model = m;
 }
-void Rasterizer::set_view(const Matrix &v){
+void Rasterizer::set_view(const Math::Matrix &v){
     this->view = v;
 }
-void Rasterizer::set_projection(const Matrix &p){
+void Rasterizer::set_projection(const Math::Matrix &p){
     this->projection = p;
 }
 
 // Bresen Ham's algorithm
-void Rasterizer::drawLine(const Vector3f &begin, const Vector3f &end){
+void Rasterizer::drawLine(const Math::Vector3f &begin, const Math::Vector3f &end){
     auto x1 = begin.x, y1 = begin.y;
     auto x2 = end.x, y2 = end.y;
 
@@ -61,7 +66,7 @@ void Rasterizer::drawLine(const Vector3f &begin, const Vector3f &end){
             y = y1;
         }
 
-        Vector3f point(x, y, 1.0f);
+        Math::Vector3f point(x, y, 1.0f);
         set_pixel(point, line_color);
 
         while(x < x2){
@@ -76,7 +81,7 @@ void Rasterizer::drawLine(const Vector3f &begin, const Vector3f &end){
                 }
                 px += twoDyMinusDx;
             }
-            point = Vector3f(x, y, 1.0f);
+            point = Math::Vector3f(x, y, 1.0f);
             set_pixel(point, line_color);
         }
     }else{
@@ -89,7 +94,7 @@ void Rasterizer::drawLine(const Vector3f &begin, const Vector3f &end){
             x = x1;
         }
 
-        Vector3f point(x, y, 1.0f);
+        Math::Vector3f point(x, y, 1.0f);
         set_pixel(point, line_color);
 
         while(y < y2){
@@ -104,7 +109,7 @@ void Rasterizer::drawLine(const Vector3f &begin, const Vector3f &end){
                 }
                 py += twoDxMinusDy;
             }
-            point = Vector3f(x, y, 1.0f);
+            point = Math::Vector3f(x, y, 1.0f);
             set_pixel(point, line_color);
         }
     }
@@ -137,14 +142,14 @@ void Rasterizer::triangleRasterize(const Triangle &t){
 
                 int index = get_index(x, y);
                 if(z_interpolated < z_buffer[index]){
-                    set_pixel(Vector3f(x, y, z_interpolated), Color::lerp(t.getColor(0), t.getColor(1), t.getColor(2), alpha, beta, gamma));
+                    set_pixel(Math::Vector3f(x, y, z_interpolated), Color::lerp(t.getColor(0), t.getColor(1), t.getColor(2), alpha, beta, gamma));
                     z_buffer[index] = z_interpolated;
                 }
             }
         }
     }
 }
-void Rasterizer::render() {
+void Rasterizer::RenderCopy() {
     void* pixels;
     int pitch;
     SDL_LockTexture(this->window.getTexture(), nullptr, &pixels, &pitch);
@@ -186,7 +191,7 @@ void Rasterizer::draw(){
         }
     }
     
-    Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+    Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
     SDL_SetRenderDrawColor(this->window.getRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
     
     clear();
@@ -194,17 +199,17 @@ void Rasterizer::draw(){
     set_model(Transformation::get_model_matrix(140.0f));
     set_view(this->camera->getViewMatrix());
     set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
-    Matrix mvp = projection * view * model;
+    Math::Matrix mvp = projection * view * model;
 
     float f1 = (100 - 0.1) / 2.0;
     float f2 = (100 + 0.1) / 2.0;
 
     Triangle triangle;
-    triangle.setVertex(0, Vector3f(2.0f, 0.0f, -2.0f));
-    triangle.setVertex(1, Vector3f(0.0f, 2.0f, -2.0f));
-    triangle.setVertex(2, Vector3f(-2.0f, 0.0f, -2.0f));
+    triangle.setVertex(0, Math::Vector3f(2.0f, 0.0f, -2.0f));
+    triangle.setVertex(1, Math::Vector3f(0.0f, 2.0f, -2.0f));
+    triangle.setVertex(2, Math::Vector3f(-2.0f, 0.0f, -2.0f));
 
-    Vector4f v[] = {
+    Math::Vector4f v[] = {
         mvp * triangle.a().to_Vector4f(1.0f),
         mvp * triangle.b().to_Vector4f(1.0f),
         mvp * triangle.c().to_Vector4f(1.0f)
@@ -232,7 +237,7 @@ void Rasterizer::draw(){
 
     //drawTriangle(triangle);
     triangleRasterize(triangle);
-    render();
+    RenderCopy();
 }
 
 int Rasterizer::get_index(int x, int y) const{
@@ -243,28 +248,24 @@ int Rasterizer::get_next_ind(){
     return this->next_id ++;
 }
 
-void Rasterizer::set_pixel(const Vector3f &p, const Color &color){
+void Rasterizer::set_pixel(const Math::Vector3f &p, const Color &color){
     auto index = (this->window.height() - 1 - p.y) * this->window.width() + p.x;
     this->frame_buf[index] = color;
-}
-
-bool Rasterizer::isQuit() const{
-    return this->quit;
 }
 
 void Rasterizer::bindCamera(std::shared_ptr<Camera> _camera){
     this->camera = _camera;
 }
 
-bool Rasterizer::insideTriangle(float x, float y, const std::vector<Vector3f> v){
+bool Rasterizer::insideTriangle(float x, float y, const std::vector<Math::Vector3f> v){
     float flag = -1;
 
     for(int i = 0; i < 3; ++ i){
-        Vector3f p0(x, y, 0);
-        Vector3f p1 = v[i];
-        Vector3f p2 = v[(i + 1) % 3];
-        Vector3f v1 = p1 - p0;
-        Vector3f v2 = p1 - p2;
+        Math::Vector3f p0(x, y, 0);
+        Math::Vector3f p1 = v[i];
+        Math::Vector3f p2 = v[(i + 1) % 3];
+        Math::Vector3f v1 = p1 - p0;
+        Math::Vector3f v2 = p1 - p2;
 
         float dz = v1.cross(v2).z;
         if(!dz){
@@ -283,7 +284,7 @@ bool Rasterizer::insideTriangle(float x, float y, const std::vector<Vector3f> v)
 
     return true;
 }
-std::tuple<float, float, float> Rasterizer::computeBarycentric2D(float x, float y, const std::vector<Vector3f> v){
+std::tuple<float, float, float> Rasterizer::computeBarycentric2D(float x, float y, const std::vector<Math::Vector3f> v){
     float c1 = (x * (v[1].y - v[2].y) + (v[2].x - v[1].x) * y + v[1].x * v[2].y - v[2].x * v[1].y) / (v[0].x * (v[1].y - v[2].y) + (v[2].x - v[1].x) * v[0].y + v[1].x * v[2].y - v[2].x * v[1].y);
     float c2 = (x * (v[2].y - v[0].y) + (v[0].x - v[2].x) * y + v[2].x * v[0].y - v[0].x * v[2].y) / (v[1].x * (v[2].y - v[0].y) + (v[0].x - v[2].x) * v[1].y + v[2].x * v[0].y - v[0].x * v[2].y);
     float c3 = (x * (v[0].y - v[1].y) + (v[1].x - v[0].x) * y + v[0].x * v[1].y - v[1].x * v[0].y) / (v[2].x *( v[0].y - v[1].y) + (v[1].x - v[0].x) * v[2].y + v[0].x * v[1].y - v[1].x * v[0].y);

@@ -21,34 +21,38 @@ public:
     Rasterizer();
     ~Rasterizer();
 
-    void Start() override;
-    void Update() override;
-    void Destroy() override;
-
     // set mvp matrix
-    void set_model(const Matrix &m);
-    void set_view(const Matrix &v);
-    void set_projection(const Matrix &p);
+    void set_model(const Math::Matrix &m);
+    void set_view(const Math::Matrix &v);
+    void set_projection(const Math::Matrix &p);
 
     std::unique_ptr<uint32_t[]> frame_buffer() const;
 
     // for draw loop
-    void draw();
-    bool isQuit() const;
+    void Execute();
     void bindCamera(std::shared_ptr<Camera> _camera);
 
 private:
+    void Start() override;
+    void Update() override;
+    void Destroy() override;
+
     // rst
-    void drawLine(const Vector3f &begin, const Vector3f &end);
+    void draw();
+    void drawLine(const Math::Vector3f &begin, const Math::Vector3f &end);
     void drawTriangle(Triangle &t);
     void triangleRasterize(const Triangle &t);
-    void render();
+
+    bool insideTriangle(float x, float y, const std::vector<Math::Vector3f> v);
+    std::tuple<float, float, float> computeBarycentric2D(float x, float y, const std::vector<Math::Vector3f> v);
+
+    void RenderCopy();
 
     // index
     int get_index(int x, int y) const;
     int get_next_ind();
 
-    void set_pixel(const Vector3f &p, const Color &color);
+    void set_pixel(const Math::Vector3f &p, const Color &color);
     void clear();
 
     // Event System
@@ -58,17 +62,13 @@ private:
 
 private:
     // MVP Matrixes
-    Matrix model;
-    Matrix view;
-    Matrix projection;
+    Math::Matrix model;
+    Math::Matrix view;
+    Math::Matrix projection;
 
     // buffers
     std::vector<float> z_buffer;
     std::vector<Color> frame_buf;
-
-    // 
-    bool insideTriangle(float x, float y, const std::vector<Vector3f> v);
-    std::tuple<float, float, float> computeBarycentric2D(float x, float y, const std::vector<Vector3f> v);
 
     // Main Components
     std::shared_ptr<Camera> camera;
