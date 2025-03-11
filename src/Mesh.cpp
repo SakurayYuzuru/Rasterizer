@@ -6,76 +6,77 @@
 Mesh::Mesh() { }
 Mesh::~Mesh() { }
 
-bool Mesh::LoadMesh(const std::string& filepath){
+void Mesh::LoadMesh(const std::string& filepath){
     std::ifstream file(filepath);
     if(!file){
         std::cerr << "Invalid File Path!" << std::endl;
-        return false;
+        return ;
     }
 
     std::vector<Math::Vector3f> positions;
     std::vector<Math::Vector2f> texCoords;
     std::vector<Math::Vector3f> normals;
+    std::vector<Face> rawFaces; 
 
     std::string line;
-    while(std::getline(file, line)){
+    while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string flag;
-        iss >> flag;
+        std::string prefix;
+        iss >> prefix;
 
-        if(flag == "v"){
+        if (prefix == "v") { 
             Math::Vector3f pos;
             iss >> pos.x >> pos.y >> pos.z;
             positions.push_back(pos);
-        }else if(flag == "vt"){
+        } 
+        else if (prefix == "vt") {
             Math::Vector2f tex;
             iss >> tex.x >> tex.y;
             texCoords.push_back(tex);
-        }else if(flag == "vn"){
+        } 
+        else if (prefix == "vn") {
             Math::Vector3f norm;
             iss >> norm.x >> norm.y >> norm.z;
             normals.push_back(norm);
-        }else if(flag == "f"){
-            std::vector<Face> faceIndices;
-            std::vector<Vertex> faceVertices;
-
+        } 
+        else if (prefix == "f") { 
+            Face face;
             std::string vertex;
-            while(iss >> vertex){
+            
+            while (iss >> vertex) { 
                 std::istringstream vss(vertex);
                 std::string indexStr;
-                int indices[3] = {-1, -1, -1};
+                int indices[3] = { -1, -1, -1 };
                 int i = 0;
-                while(std::getline(vss, indexStr, '/') && i < 3){
-                    if(!indexStr.empty()){
+
+                while (std::getline(vss, indexStr, '/') && i < 3) {
+                    if (!indexStr.empty()){ 
                         indices[i] = std::stoi(indexStr) - 1;
                     }
-                    i ++;
+                    i++;
                 }
 
-                Face face = {indices[0], indices[1], indices[2]};
-                faceIndices.push_back(face);
-
-                Vertex vertexData;
-                vertexData.v = positions[indices[0]];
-                if(indices[1] >= 0){
-                    vertexData.uv = texCoords[indices[1]];
-                }
-                if(indices[2] >= 0){
-                    vertexData.normal = normals[indices[2]];
-                }
-                faceVertices.push_back(vertexData);
-                faceIndices.push_back({indices[0], indices[1], indices[2]});
+                face.index.push_back(indices[0]);
+                face.uvIndex.push_back(indices[1]);
+                face.nIndex.push_back(indices[2]);
             }
 
-            for(int i = 1; i < faceVertices.size() - 1; ++ i){
-                vertices.push_back(faceVertices[0]);
-                vertices.push_back(faceVertices[i]);
-                vertices.push_back(faceVertices[i + 1]);
-                faces.push_back({faceIndices[0].index, faceIndices[i].uvIndex, faceIndices[i + 1].nIndex});
-            }
+            rawFaces.push_back(face);
         }
     }
+
     file.close();
 
-    return true;
+    for (const auto& face : rawFaces) {
+        if (face.index.size() < 3){ 
+            continue;
+        }
+        for (size_t i = 1; i + 1 < face.index.size(); i++) {
+            Face triFace;
+            triFace.index = {face.index[0], face.index[i], face.index[i + 1]};
+            triFace.uvIndex = {face.uvIndex[0], face.uvIndex[i], face.uvIndex[i + 1]};
+            triFace.nIndex = {face.nIndex[0], face.nIndex[i], face.nIndex[i + 1]};
+            faces.push_back(triFace);
+        }
+    }
 }

@@ -21,6 +21,9 @@ Math::Vector3f Triangle::c(){
 void Triangle::setVertex(int index, Math::Vector3f vertex){
     vertexes[index].v = vertex;
 }
+void Triangle::setVertex(int index, const Vertex& vertex){
+    vertexes[index] = vertex;
+}
 void Triangle::setColor(int index, float r, float g, float b){
     vertexes[index].color = Color(r, g, b);
 }
@@ -36,8 +39,14 @@ std::vector<Math::Vector3f> Triangle::v() const{
 
     return vex;
 }
-Color Triangle::getColor(int index) const{
+Color Triangle::GetColor(int index) const{
     return this->vertexes[index].color;
+}
+Math::Vector2f Triangle::GetTexture(int index) const{
+    return this->vertexes[index].uv;
+}
+Math::Vector3f Triangle::GetNormal(int index) const{
+    return this->vertexes[index].normal;
 }
 
 std::array<Math::Vector4f, 3> Triangle::toVector4() const{

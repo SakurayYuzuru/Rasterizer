@@ -8,14 +8,11 @@
 #include <vector>
 #include <string>
 
-class Mesh{
-public:
+struct Mesh{
     Mesh();
     ~Mesh();
 
-    bool LoadMesh(const std::string& filepath);
-
-private:
+    void LoadMesh(const std::string& filepath);
     std::vector<Vertex> vertices;
     std::vector<Face> faces;
 };

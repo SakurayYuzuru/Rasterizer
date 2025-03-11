@@ -10,6 +10,7 @@
 #include <Triangle.h>
 #include <Transformation.h>
 #include <Camera.h>
+#include <Mesh.h>
 
 #include <tuple>
 #include <vector>
@@ -21,6 +22,12 @@ public:
     Rasterizer();
     ~Rasterizer();
 
+    static Rasterizer& GetInstance();
+
+    // Show features
+    void ShowBresen();
+    void ShowRst();
+
     // set mvp matrix
     void set_model(const Math::Matrix &m);
     void set_view(const Math::Matrix &v);
@@ -30,7 +37,8 @@ public:
 
     // for draw loop
     void Execute();
-    void bindCamera(std::shared_ptr<Camera> _camera);
+    void BindCamera(std::shared_ptr<Camera> _camera);
+    void BindMesh(std::shared_ptr<Mesh> meshes);
 
 private:
     void Start() override;
@@ -73,6 +81,8 @@ private:
     // Main Components
     std::shared_ptr<Camera> camera;
     Window window;
+    std::shared_ptr<Mesh> mesh;
+
     bool quit;
     int next_id = 0;
     int frame_count;

@@ -46,12 +46,12 @@ int Window::width() const{
     return this->w;
 }
 
-SDL_Window* Window::getWindow() const{
+SDL_Window* Window::GetWindow() const{
     return this->window;
 }
-SDL_Renderer* Window::getRenderer() const{
+SDL_Renderer* Window::GetRenderer() const{
     return this->renderer;
 }
-SDL_Texture* Window::getTexture() const{
+SDL_Texture* Window::GetTexture() const{
     return this->texture;
 }

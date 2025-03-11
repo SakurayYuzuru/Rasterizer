@@ -8,19 +8,18 @@
 #include <Mesh.h>
 
 #include <string>
+#include <memory>
 
 class LoadMeshCommand : public ICommand{
 public:
-    LoadMeshCommand(const Mesh& mesh);
+    LoadMeshCommand(std::shared_ptr<Mesh> mesh);
     ~LoadMeshCommand();
 
     void Execute(const std::string& arg) override;
-    bool Successful() override;
 
 private:
-    Mesh mesh;
+    std::shared_ptr<Mesh> mesh;
     std::string path;
-    bool flag;
 };
 
 #endif

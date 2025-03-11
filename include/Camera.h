@@ -42,7 +42,7 @@ private:
     void Update() override;
     void Destroy() override;
 
-    void updateCameraVectors();
+    void UpdateCameraVectors();
 
 private:
     Math::Vector3f position;

@@ -15,6 +15,3 @@ void HelpCommand::Execute(const std::string& arg){
                   << "  --z_buffer            Show the Z-Buffer with two triangles" << std::endl
                   ;
 }
-bool HelpCommand::Successful(){
-    return true;
-}

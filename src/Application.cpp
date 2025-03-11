@@ -1,8 +1,10 @@
 #include <Application.h>
 #include <Mesh.h>
-#include <LoadMeshCommand.h>
 
-Application::Application(){
+#include <LoadMeshCommand.h>
+#include <ShowBresenHam.h>
+
+Application::Application() : cmd(), arg(cmd){
     Start();
 }
 Application::~Application(){
@@ -10,22 +12,40 @@ Application::~Application(){
 }
 void Application::Execute(){
     Update();
-
-    if(arg.Execute()){
-        this->rst = std::make_shared<Rasterizer>();
-        rst->bindCamera(camera);
-        rst->Execute();
-    }else{
-        exit();
-    }
 }
 
 void Application::Start(){
-    Mesh mesh;
-    this->arg.AddOption("--model", std::make_unique<LoadMeshCommand>(mesh));
+    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+    cmd.RegisterCommand("--model", std::make_unique<LoadMeshCommand>(mesh));
     this->camera = std::make_shared<Camera>();
 }
-void Application::Update(){ }
+void Application::Update(){
+    int flag = 1;
+    while(flag){
+        auto [id, command, args] = arg.Execute();
+
+        switch (id){
+        case 0:
+            cmd.Execute(command, args);
+            break;
+        case 1:
+            rst = std::make_shared<Rasterizer>();
+            rst->BindCamera(camera);
+            rst->Execute();
+            break;
+        case 2:
+            rst = std::make_shared<Rasterizer>();
+            cmd.Execute(command, args);
+            break;
+        case 3:
+            break;
+        
+        default:
+            flag = exit();
+            break;
+        }
+    }
+}
 void Application::Destroy(){ }
 
 int Application::exit(){

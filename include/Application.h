@@ -6,6 +6,7 @@
 #include <IManager.h>
 
 #include <ArgumentParser.h>
+#include <CommandManager.h>
 #include <Rasterizer.h>
 #include <Camera.h>
 
@@ -25,6 +26,7 @@ private:
 
 private:
     ArgumentParser arg;
+    CommandManager cmd;
     std::shared_ptr<Rasterizer> rst;
     std::shared_ptr<Camera> camera;
 };

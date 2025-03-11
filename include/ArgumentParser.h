@@ -7,28 +7,26 @@
 #include <IManager.h>
 
 #include <HelpCommand.h>
+#include <CommandManager.h>
 
-#include <unordered_map>
 #include <string>
-#include <memory>
+#include <tuple>
 
 class ArgumentParser : public IManager{
 public:
-    ArgumentParser();
+    explicit ArgumentParser(CommandManager& _cmdManager);
     ~ArgumentParser();
-    bool Execute();
-
-    void AddOption(const std::string& name, std::unique_ptr<ICommand> cmd);
+    std::tuple<int, std::string, std::string> Execute();
 
 private:
     void Start() override;
     void Update() override;
     void Destroy() override;
 
-    bool processInput();
+    std::tuple<int, std::string, std::string> processInput();
 
 private:
-    std::unordered_map<std::string, std::unique_ptr<ICommand>> options;
+    CommandManager& cmdManager;
 };
 
 #endif

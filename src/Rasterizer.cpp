@@ -10,6 +10,11 @@ Rasterizer::~Rasterizer(){
     Destroy();
 }
 
+Rasterizer& Rasterizer::GetInstance(){
+    static Rasterizer rst;
+    return rst;
+}
+
 void Rasterizer::Start(){
     this->frame_count = 0;
     this->quit = false;
@@ -25,6 +30,39 @@ void Rasterizer::Execute(){
     while(!this->quit){
         Update();
     }
+}
+
+// Show features
+void Rasterizer::ShowBresen(){
+    Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+    SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+    
+    clear();
+
+    Triangle t;
+    t.setVertex(0, Math::Vector3f(540.0f, 320.0f, 0.0f));
+    t.setVertex(1, Math::Vector3f(270.0f, 640.0f, 0.0f));
+    t.setVertex(2, Math::Vector3f(810.0f, 640.0f, 0.0f));
+
+    drawTriangle(t);
+    RenderCopy();
+}
+void Rasterizer::ShowRst(){
+    Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+    SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+    
+    clear();
+
+    Triangle triangle;
+    triangle.setVertex(0, Math::Vector3f(2.0f, 0.0f, -2.0f));
+    triangle.setVertex(1, Math::Vector3f(0.0f, 2.0f, -2.0f));
+    triangle.setVertex(2, Math::Vector3f(-2.0f, 0.0f, -2.0f));
+    triangle.setColor(0, 255.0f, 0.0f, 0.0f);
+    triangle.setColor(1, 0.0f, 255.0f, 0.0f);
+    triangle.setColor(2, 0.0f, 0.0f, 255.0f);
+
+    triangleRasterize(triangle);
+    RenderCopy();
 }
 
 // set MVP Transformation
@@ -44,7 +82,7 @@ void Rasterizer::drawLine(const Math::Vector3f &begin, const Math::Vector3f &end
     auto x2 = end.x, y2 = end.y;
 
     Color line_color(255.0f, 0.0f, 0.0f, 1.0f);
-    SDL_SetRenderDrawColor(this->window.getRenderer(), line_color.r, line_color.g, line_color.b, line_color.a);
+    SDL_SetRenderDrawColor(this->window.GetRenderer(), line_color.r, line_color.g, line_color.b, line_color.a);
 
     int ox = x2 - x1;
     int oy = y2 - y1;
@@ -142,7 +180,7 @@ void Rasterizer::triangleRasterize(const Triangle &t){
 
                 int index = get_index(x, y);
                 if(z_interpolated < z_buffer[index]){
-                    set_pixel(Math::Vector3f(x, y, z_interpolated), Color::lerp(t.getColor(0), t.getColor(1), t.getColor(2), alpha, beta, gamma));
+                    set_pixel(Math::Vector3f(x, y, z_interpolated), Color::lerp(t.GetColor(0), t.GetColor(1), t.GetColor(2), alpha, beta, gamma));
                     z_buffer[index] = z_interpolated;
                 }
             }
@@ -152,7 +190,7 @@ void Rasterizer::triangleRasterize(const Triangle &t){
 void Rasterizer::RenderCopy() {
     void* pixels;
     int pitch;
-    SDL_LockTexture(this->window.getTexture(), nullptr, &pixels, &pitch);
+    SDL_LockTexture(this->window.GetTexture(), nullptr, &pixels, &pitch);
 
     for (int y = 0; y < this->window.height(); ++y) {
         for (int x = 0; x < this->window.width(); ++x) {
@@ -163,9 +201,9 @@ void Rasterizer::RenderCopy() {
         }
     }
 
-    SDL_UnlockTexture(this->window.getTexture());
-    SDL_RenderCopy(this->window.getRenderer(), this->window.getTexture(), nullptr, nullptr);
-    SDL_RenderPresent(this->window.getRenderer());
+    SDL_UnlockTexture(this->window.GetTexture());
+    SDL_RenderCopy(this->window.GetRenderer(), this->window.GetTexture(), nullptr, nullptr);
+    SDL_RenderPresent(this->window.GetRenderer());
 }
 
 std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
@@ -192,7 +230,7 @@ void Rasterizer::draw(){
     }
     
     Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
-    SDL_SetRenderDrawColor(this->window.getRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+    SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
     
     clear();
 
@@ -204,39 +242,38 @@ void Rasterizer::draw(){
     float f1 = (100 - 0.1) / 2.0;
     float f2 = (100 + 0.1) / 2.0;
 
-    Triangle triangle;
-    triangle.setVertex(0, Math::Vector3f(2.0f, 0.0f, -2.0f));
-    triangle.setVertex(1, Math::Vector3f(0.0f, 2.0f, -2.0f));
-    triangle.setVertex(2, Math::Vector3f(-2.0f, 0.0f, -2.0f));
+    for(auto face : mesh->faces){
+        Triangle triangle;
+        triangle.setVertex(0, mesh->vertices[face.index[0]].v);
+        triangle.setVertex(1, mesh->vertices[face.index[1]].v);
+        triangle.setVertex(2, mesh->vertices[face.index[2]].v);
 
-    Math::Vector4f v[] = {
-        mvp * triangle.a().to_Vector4f(1.0f),
-        mvp * triangle.b().to_Vector4f(1.0f),
-        mvp * triangle.c().to_Vector4f(1.0f)
-    };
-    for (auto& vec : v) {
-        vec = vec / vec.w;
+        Math::Vector4f v[] = {
+            mvp * triangle.a().to_Vector4f(1.0f),
+            mvp * triangle.b().to_Vector4f(1.0f),
+            mvp * triangle.c().to_Vector4f(1.0f)
+        };
+        for (auto& vec : v) {
+            vec = vec / vec.w;
+        }
+
+        for (auto & vert : v){
+            vert.x = std::clamp(vert.x, -1.0f, 1.0f);
+            vert.y = std::clamp(vert.y, -1.0f, 1.0f);
+
+            vert.x = 0.5 * this->window.width() * (vert.x + 1.0);
+            vert.y = 0.5 * this->window.height() * (vert.y + 1.0);
+            vert.z = vert.z * f1 + f2;
+        }
+
+        for (int i = 0; i < 3; ++i){
+            triangle.setVertex(i, v[i].to_Vector3f());
+        }
+
+        drawTriangle(triangle);
+        triangleRasterize(triangle);
     }
 
-    for (auto & vert : v){
-        vert.x = std::clamp(vert.x, -1.0f, 1.0f);
-        vert.y = std::clamp(vert.y, -1.0f, 1.0f);
-
-        vert.x = 0.5 * this->window.width() * (vert.x + 1.0);
-        vert.y = 0.5 * this->window.height() * (vert.y + 1.0);
-        vert.z = vert.z * f1 + f2;
-    }
-
-    for (int i = 0; i < 3; ++i){
-        triangle.setVertex(i, v[i].to_Vector3f());
-    }
-
-    triangle.setColor(0, 255.0f, 0.0f, 0.0f);
-    triangle.setColor(1, 0.0f, 255.0f, 0.0f);
-    triangle.setColor(2, 0.0f, 0.0f, 255.0f);
-
-    //drawTriangle(triangle);
-    triangleRasterize(triangle);
     RenderCopy();
 }
 
@@ -253,8 +290,11 @@ void Rasterizer::set_pixel(const Math::Vector3f &p, const Color &color){
     this->frame_buf[index] = color;
 }
 
-void Rasterizer::bindCamera(std::shared_ptr<Camera> _camera){
+void Rasterizer::BindCamera(std::shared_ptr<Camera> _camera){
     this->camera = _camera;
+}
+void Rasterizer::BindMesh(std::shared_ptr<Mesh> meshes){
+    this->mesh = std::move(meshes);
 }
 
 bool Rasterizer::insideTriangle(float x, float y, const std::vector<Math::Vector3f> v){
@@ -293,7 +333,7 @@ std::tuple<float, float, float> Rasterizer::computeBarycentric2D(float x, float 
 }
 
 void Rasterizer::clear() {
-    SDL_RenderClear(this->window.getRenderer());
+    SDL_RenderClear(this->window.GetRenderer());
     std::fill(z_buffer.begin(), z_buffer.end(), std::numeric_limits<float>::infinity());
     std::fill(frame_buf.begin(), frame_buf.end(), Color());
 }

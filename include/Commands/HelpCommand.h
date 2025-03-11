@@ -11,7 +11,6 @@ public:
     ~HelpCommand();
 
     void Execute(const std::string& arg) override;
-    bool Successful() override;
 };
 
 #endif

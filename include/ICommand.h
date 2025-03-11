@@ -9,7 +9,6 @@ class ICommand{
 public:
     virtual ~ICommand() = default;
     virtual void Execute(const std::string& arg) = 0;
-    virtual bool Successful() = 0;
 };
 
 #endif

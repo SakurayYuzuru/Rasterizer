@@ -3,25 +3,23 @@
 #include <fstream>
 #include <sstream>
 
-ArgumentParser::ArgumentParser(){
+ArgumentParser::ArgumentParser(CommandManager& _cmdManager) : cmdManager(_cmdManager) {
     Start();
 }
 ArgumentParser::~ArgumentParser(){
     Destroy();
 }
-bool ArgumentParser::Execute(){
+std::tuple<int, std::string, std::string> ArgumentParser::Execute(){
     Update();
 
     return processInput();
 }
 
-void ArgumentParser::Start(){
-    options["--help"] = std::make_unique<HelpCommand>();
-}
+void ArgumentParser::Start(){ }
 void ArgumentParser::Update(){ }
 void ArgumentParser::Destroy(){ }
 
-bool ArgumentParser::processInput(){
+std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
     std::string input;
     while(true){
         std::cout << "(SRasterizer) $ ";
@@ -34,28 +32,31 @@ bool ArgumentParser::processInput(){
         if(!(iss >> command)){
             continue;
         }
+        if(!(iss >> arg)){
+            arg = "";
+        }
 
         if(command == "exit" || command == "quit"){
             std::cout << "Quit" << std::endl;
-            return false;
+            return {-1, command, arg};
         }else if(command == "--help"){
-            options["--help"]->Execute("");
+            return {0, command, arg};
+        }else if(command == "--bresem_ham"){
+            return {2, command, arg};
+        }else if(command == "--rst"){
+            return {3, command, arg};
         }else if(command == "--model"){
-            if(!(iss >> arg)){
-                options["--help"]->Execute("");
+            if(arg.empty()){
+                return {0, "--help", arg};
             }else{
-                options["--model"]->Execute(arg);
-                if(options["--model"]->Successful()){
+                this->cmdManager.Execute(command, arg);
+                if(this->cmdManager.find(command)){
                     std::cout << "[Mesh] Link Successful!" << std::endl;
-                    return true;
+                    return {1, command, arg};
                 }else{
                     continue;
                 }
             }
         }
     }
-}
-
-void ArgumentParser::AddOption(const std::string& name, std::unique_ptr<ICommand> cmd){
-    options[name] = std::move(cmd);
 }

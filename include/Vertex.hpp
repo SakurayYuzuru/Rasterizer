@@ -6,6 +6,8 @@
 #include <Math.h>
 #include <Color.hpp>
 
+#include <vector>
+
 struct Vertex{
     Math::Vector3f v;
     Math::Vector2f uv;
@@ -31,9 +33,9 @@ struct Vertex{
 };
 
 struct Face{
-    int index;
-    int uvIndex;
-    int nIndex;
+    std::vector<int> index;
+    std::vector<int> uvIndex;
+    std::vector<int> nIndex;
 };
 
 #endif

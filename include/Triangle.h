@@ -17,14 +17,15 @@ public:
     Math::Vector3f c();
 
     void setVertex(int index, Math::Vector3f vertex);
+    void setVertex(int index, const Vertex& vertex);
     void setColor(int index, float r, float g, float b);
     void setTexture(int index, float s, float t);
     void setNormal(int index, Math::Vector3f n);
 
     std::vector<Math::Vector3f> v() const;
-    Color getColor(int index) const;
-    Math::Vector2f getTexture() const;
-    Math::Vector3f getNormal() const;
+    Color GetColor(int index) const;
+    Math::Vector2f GetTexture(int index) const;
+    Math::Vector3f GetNormal(int index) const;
 
     std::array<Math::Vector4f, 3> toVector4() const;
 

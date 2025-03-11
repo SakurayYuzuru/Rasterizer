@@ -10,9 +10,9 @@ public:
     Window();
     ~Window();
 
-    SDL_Window* getWindow() const;
-    SDL_Renderer* getRenderer() const;
-    SDL_Texture* getTexture() const;
+    SDL_Window* GetWindow() const;
+    SDL_Renderer* GetRenderer() const;
+    SDL_Texture* GetTexture() const;
 
     int width() const;
     int height() const;

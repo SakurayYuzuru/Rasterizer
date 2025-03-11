@@ -68,10 +68,10 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
         }
     }
 
-    updateCameraVectors();
+    UpdateCameraVectors();
 }
 
-void Camera::updateCameraVectors(){
+void Camera::UpdateCameraVectors(){
     Math::Vector3f _front(std::cos(Math::radians(Yaw) * std::cos(Math::radians(Pitch))),
                     std::sin(Math::radians(Pitch)),
                     std::sin(Math::radians(Yaw) * std::cos(Pitch)));
