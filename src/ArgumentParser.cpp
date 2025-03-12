@@ -28,7 +28,6 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
         std::string command;
         std::string arg;
 
-
         if(!(iss >> command)){
             continue;
         }
@@ -36,27 +35,30 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
             arg = "";
         }
 
-        if(command == "exit" || command == "quit"){
-            std::cout << "Quit" << std::endl;
-            return {-1, command, arg};
+        std::cout << command << " " << arg << std::endl;
+
+        if(command == "--exit"){
+            return std::make_tuple(-1, command, arg);
         }else if(command == "--help"){
-            return {0, command, arg};
-        }else if(command == "--bresem_ham"){
-            return {2, command, arg};
-        }else if(command == "--rst"){
-            return {3, command, arg};
+            return std::make_tuple(0, command, arg);
         }else if(command == "--model"){
             if(arg.empty()){
-                return {0, "--help", arg};
+                return std::make_tuple(0, "--help", arg);
             }else{
                 this->cmdManager.Execute(command, arg);
-                if(this->cmdManager.find(command)){
+                if(this->cmdManager.find(command) && arg.rfind(".obj")){
                     std::cout << "[Mesh] Link Successful!" << std::endl;
-                    return {1, command, arg};
+                    return std::make_tuple(1, command, arg);
                 }else{
                     continue;
                 }
             }
+        }else if(command == "--bresem_ham"){
+            return std::make_tuple(2, command, arg);
+        }else if(command == "--rst"){
+            return std::make_tuple(3, command, arg);
+        }else{
+            return std::make_tuple(0, "--help", arg);
         }
     }
 }

@@ -34,35 +34,65 @@ void Rasterizer::Execute(){
 
 // Show features
 void Rasterizer::ShowBresen(){
-    Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
-    SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+    while(!this->quit){
+        while(SDL_PollEvent(&e)){
+            if(e.type == SDL_QUIT){
+                this->quit = true;
+            }
+            if(e.key.keysym.sym == SDLK_ESCAPE){
+                this->quit = true;
+            }
+        }
     
-    clear();
-
-    Triangle t;
-    t.setVertex(0, Math::Vector3f(540.0f, 320.0f, 0.0f));
-    t.setVertex(1, Math::Vector3f(270.0f, 640.0f, 0.0f));
-    t.setVertex(2, Math::Vector3f(810.0f, 640.0f, 0.0f));
-
-    drawTriangle(t);
-    RenderCopy();
+        Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+        SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+        
+        clear();
+    
+        Triangle t;
+        t.setVertex(0, Math::Vector3f(540.0f, 320.0f, 0.0f));
+        t.setVertex(1, Math::Vector3f(270.0f, 640.0f, 0.0f));
+        t.setVertex(2, Math::Vector3f(810.0f, 640.0f, 0.0f));
+    
+        drawTriangle(t);
+        RenderCopy();
+    }
 }
 void Rasterizer::ShowRst(){
-    Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
-    SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
-    
-    clear();
+    while(!this->quit){
+        while(SDL_PollEvent(&e)){
+            if(e.type == SDL_QUIT){
+                this->quit = true;
+            }
+            if(e.key.keysym.sym == SDLK_ESCAPE){
+                this->quit = true;
+            }
+        }
 
-    Triangle triangle;
-    triangle.setVertex(0, Math::Vector3f(2.0f, 0.0f, -2.0f));
-    triangle.setVertex(1, Math::Vector3f(0.0f, 2.0f, -2.0f));
-    triangle.setVertex(2, Math::Vector3f(-2.0f, 0.0f, -2.0f));
-    triangle.setColor(0, 255.0f, 0.0f, 0.0f);
-    triangle.setColor(1, 0.0f, 255.0f, 0.0f);
-    triangle.setColor(2, 0.0f, 0.0f, 255.0f);
+        Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+        SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+        
+        clear();
 
-    triangleRasterize(triangle);
-    RenderCopy();
+        Triangle triangle1, triangle2;
+        triangle1.setVertex(0, Math::Vector3f(400.0f, 200.0f, 1.0f));
+        triangle1.setVertex(1, Math::Vector3f(200.0f, 600.0f, 1.0f));
+        triangle1.setVertex(2, Math::Vector3f(600.0f, 600.0f, 1.0f));
+        triangle1.setColor(0, 0.0f, 255.0f, 0.0f);
+        triangle1.setColor(1, 0.0f, 255.0f, 0.0f);
+        triangle1.setColor(2, 0.0f, 255.0f, 0.0f);
+
+        triangle2.setVertex(0, Math::Vector3f(300.0f, 300.0f, 5.0f));
+        triangle2.setVertex(1, Math::Vector3f(265.0f, 665.0f, 5.0f));
+        triangle2.setVertex(2, Math::Vector3f(665.0f, 665.0f, 5.0f));
+        triangle2.setColor(0, 255.0f, 0.0f, 0.0f);
+        triangle2.setColor(1, 255.0f, 0.0f, 0.0f);
+        triangle2.setColor(2, 255.0f, 0.0f, 0.0f);
+
+        triangleRasterize(triangle1);
+        triangleRasterize(triangle2);
+        RenderCopy();
+    }
 }
 
 // set MVP Transformation

@@ -20,31 +20,27 @@ void Application::Start(){
     this->camera = std::make_shared<Camera>();
 }
 void Application::Update(){
-    int flag = 1;
-    while(flag){
-        auto [id, command, args] = arg.Execute();
+    std::shared_ptr<Rasterizer> rst = std::make_shared<Rasterizer>();
+    rst->BindCamera(camera);
+    rst->ShowRst();
 
-        switch (id){
-        case 0:
-            cmd.Execute(command, args);
-            break;
-        case 1:
-            rst = std::make_shared<Rasterizer>();
-            rst->BindCamera(camera);
-            rst->Execute();
-            break;
-        case 2:
-            rst = std::make_shared<Rasterizer>();
-            cmd.Execute(command, args);
-            break;
-        case 3:
-            break;
-        
-        default:
-            flag = exit();
-            break;
-        }
-    }
+    // int flag = 1;
+    // while(flag){
+    //     auto command = arg.Execute();
+
+    //     if(std::get<0>(command) == -1){
+    //         flag = exit();
+    //     }else if(std::get<0>(command) == 2){
+    //         std::shared_ptr<Rasterizer> rst = std::make_shared<Rasterizer>();
+    //         cmd.RegisterEvent("--bresen_ham", [&](){rst->ShowBresen();});
+    //     }else if(std::get<0>(command) == 3){
+    //         std::shared_ptr<Rasterizer> rst = std::make_shared<Rasterizer>();
+    //         cmd.RegisterEvent("--rst", [&](){rst->ShowRst();});
+    //     }else{
+    //         command = std::make_tuple(0, "--help", "");
+    //     }
+    //     cmd.Execute(std::get<1>(command), std::get<2>(command));
+    // }
 }
 void Application::Destroy(){ }
 
