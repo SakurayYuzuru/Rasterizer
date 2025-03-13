@@ -35,6 +35,10 @@ struct Color{
         this->a = _a;
     }
 
+    static Color Identity(){
+        return Color();
+    }
+
     uint32_t toUInt() const{
         uint8_t r = static_cast<uint8_t>(this->r * 255.0f);
         uint8_t g = static_cast<uint8_t>(this->g * 255.0f);

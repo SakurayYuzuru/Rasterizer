@@ -11,6 +11,7 @@
 #include <Transformation.h>
 #include <Camera.h>
 #include <Mesh.h>
+#include <Texture.h>
 
 #include <tuple>
 #include <vector>
@@ -39,6 +40,7 @@ public:
     void Execute();
     void BindCamera(std::shared_ptr<Camera> _camera);
     void BindMesh(std::shared_ptr<Mesh> meshes);
+    void BindTexture(std::shared_ptr<Texture> tex);
 
 private:
     void Start() override;
@@ -82,6 +84,7 @@ private:
     std::shared_ptr<Camera> camera;
     Window window;
     std::shared_ptr<Mesh> mesh;
+    std::shared_ptr<Texture> texture;
 
     bool quit;
     int next_id = 0;

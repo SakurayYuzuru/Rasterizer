@@ -6,9 +6,9 @@
 #include <ShowBresenHam.h>
 
 CommandManager::CommandManager() {
-    commands["--exit"] = std::make_unique<ExitCommand>();
-    commands["--help"] = std::make_unique<HelpCommand>();
-    commands["--bresen_ham"] = std::make_unique<ShowBresenHam>();
+    commands["exit"] = std::make_unique<ExitCommand>();
+    commands["help"] = std::make_unique<HelpCommand>();
+    commands["bresen_ham"] = std::make_unique<ShowBresenHam>();
 }
 CommandManager::~CommandManager() { }
 
@@ -30,7 +30,7 @@ void CommandManager::Execute(const std::string& name, const std::string& args){{
         }
     }else{
         std::cout << "\aInvalid Option!" << std::endl;
-        this->commands["--help"]->Execute("");
+        this->commands["help"]->Execute("");
     }
 }}
 

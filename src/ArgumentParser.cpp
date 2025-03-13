@@ -35,30 +35,43 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
             arg = "";
         }
 
-        std::cout << command << " " << arg << std::endl;
-
-        if(command == "--exit"){
+        if(command == "exit"){
             return std::make_tuple(-1, command, arg);
-        }else if(command == "--help"){
+        }else if(command == "help"){
             return std::make_tuple(0, command, arg);
-        }else if(command == "--model"){
+        }else if(command == "run"){
+            std::cout << "[Rasterizer] Running..." << std::endl;
+            return std::make_tuple(1, command, arg);
+        }else if(command == "bresen_ham"){
+            return std::make_tuple(2, command, arg);
+        }else if(command == "rst"){
+            return std::make_tuple(3, command, arg);
+        }else if(command == "model"){
             if(arg.empty()){
-                return std::make_tuple(0, "--help", arg);
+                return std::make_tuple(0, "help", arg);
             }else{
                 this->cmdManager.Execute(command, arg);
                 if(this->cmdManager.find(command) && arg.rfind(".obj")){
                     std::cout << "[Mesh] Link Successful!" << std::endl;
-                    return std::make_tuple(1, command, arg);
+                    return std::make_tuple(4, command, arg);
                 }else{
                     continue;
                 }
             }
-        }else if(command == "--bresem_ham"){
-            return std::make_tuple(2, command, arg);
-        }else if(command == "--rst"){
-            return std::make_tuple(3, command, arg);
+        }else if(command == "texture"){
+            if(arg.empty()){
+                return std::make_tuple(0, "help", arg);
+            }else{
+                this->cmdManager.Execute(command, arg);
+                if(this->cmdManager.find(command)){
+                    std::cout << "[Texture] Link Successful!" << std::endl;
+                    return std::make_tuple(5, command, arg);
+                }else{
+                    continue;
+                }
+            }
         }else{
-            return std::make_tuple(0, "--help", arg);
+            return std::make_tuple(0, "help", arg);
         }
     }
 }

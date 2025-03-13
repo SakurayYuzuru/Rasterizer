@@ -27,6 +27,7 @@ private:
 private:
     ArgumentParser arg;
     CommandManager cmd;
+    std::shared_ptr<Rasterizer> rst;
     std::shared_ptr<Camera> camera;
 };
 

@@ -16,6 +16,9 @@ Rasterizer& Rasterizer::GetInstance(){
 }
 
 void Rasterizer::Start(){
+    this->mesh = nullptr;
+    this->texture = nullptr;
+
     this->frame_count = 0;
     this->quit = false;
     this->frame_buf.resize(this->window.height() * this->window.width());
@@ -222,13 +225,24 @@ void Rasterizer::RenderCopy() {
     int pitch;
     SDL_LockTexture(this->window.GetTexture(), nullptr, &pixels, &pitch);
 
-    for (int y = 0; y < this->window.height(); ++y) {
-        for (int x = 0; x < this->window.width(); ++x) {
-            auto index = get_index(x, y);
-            Color color = frame_buf[index];
-            Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
-            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
+    if(!texture){
+        for (int y = 0; y < this->window.height(); ++y) {
+            for (int x = 0; x < this->window.width(); ++x) {
+                auto index = get_index(x, y);
+                Color color = frame_buf[index];
+                Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
+                *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
+            }
         }
+    }else{
+        frame_buf.resize(texture->GetImage().width * texture->GetImage().height);
+        frame_buf.assign((Color*)texture->GetImage()->pixels, 
+                            (Color*)formattedSurface->pixels + (formattedSurface->w * formattedSurface->h));
+
+        // Store width & height for indexing
+        frame_buffer_width = formattedSurface->w;
+        frame_buffer_height = formattedSurface->h;
+
     }
 
     SDL_UnlockTexture(this->window.GetTexture());
@@ -326,6 +340,9 @@ void Rasterizer::BindCamera(std::shared_ptr<Camera> _camera){
 void Rasterizer::BindMesh(std::shared_ptr<Mesh> meshes){
     this->mesh = std::move(meshes);
 }
+void Rasterizer::BindTexture(std::shared_ptr<Texture> tex){
+    this->texture = std::move(tex);
+}
 
 bool Rasterizer::insideTriangle(float x, float y, const std::vector<Math::Vector3f> v){
     float flag = -1;
@@ -365,7 +382,7 @@ std::tuple<float, float, float> Rasterizer::computeBarycentric2D(float x, float 
 void Rasterizer::clear() {
     SDL_RenderClear(this->window.GetRenderer());
     std::fill(z_buffer.begin(), z_buffer.end(), std::numeric_limits<float>::infinity());
-    std::fill(frame_buf.begin(), frame_buf.end(), Color());
+    std::fill(frame_buf.begin(), frame_buf.end(), Color::Identity());
 }
 
 void Rasterizer::processInput(){

@@ -19,7 +19,6 @@ public:
 
 private:
     std::shared_ptr<Mesh> mesh;
-    std::string path;
 };
 
 #endif
