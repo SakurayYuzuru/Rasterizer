@@ -15,12 +15,15 @@ struct Image{
 
 class Texture{
 public:
+    Texture();
     Texture(const std::string& path);
     ~Texture();
     void LoadTexture(const std::string& path);
     Image GetImage() const;
+    SDL_Surface* GetSurface() const;
 private:
     Image img;
+    SDL_Surface* format;
 };
 
 #endif

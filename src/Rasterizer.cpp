@@ -236,13 +236,8 @@ void Rasterizer::RenderCopy() {
         }
     }else{
         frame_buf.resize(texture->GetImage().width * texture->GetImage().height);
-        frame_buf.assign((Color*)texture->GetImage()->pixels, 
-                            (Color*)formattedSurface->pixels + (formattedSurface->w * formattedSurface->h));
-
-        // Store width & height for indexing
-        frame_buffer_width = formattedSurface->w;
-        frame_buffer_height = formattedSurface->h;
-
+        frame_buf.assign((Color*)texture->GetImage().pixel, 
+                            (Color*)texture->GetSurface()->pixels + (texture->GetSurface()->w * texture->GetSurface()->h));
     }
 
     SDL_UnlockTexture(this->window.GetTexture());

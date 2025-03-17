@@ -25,9 +25,8 @@ void Application::Start(){
     this->camera = std::make_shared<Camera>();
 }
 void Application::Update(){
-    // rst->BindCamera(camera);
-    // cmd.RegisterEvent("bresen_ham", [&](){rst->ShowBresen();});
-    // cmd.Execute("bresen_ham", "");
+    rst->BindCamera(camera);
+    rst->BindCamera(camera);
 
     int flag = 1;
     while(flag){
@@ -36,12 +35,8 @@ void Application::Update(){
         if(std::get<0>(command) == -1){         // exit
             flag = exit();
         }else if(std::get<0>(command) == 2){    // bresen ham
-            std::shared_ptr<Rasterizer> rst = std::make_shared<Rasterizer>();
-            rst->BindCamera(camera);
             cmd.RegisterEvent(std::get<1>(command), [&](){rst->ShowBresen();});
         }else if(std::get<0>(command) == 3){    // rst
-            std::shared_ptr<Rasterizer> rst = std::make_shared<Rasterizer>();
-            rst->BindCamera(camera);
             cmd.RegisterEvent(std::get<1>(command), [&](){rst->ShowRst();});
         }else if(std::get<0>(command) == 4){    // model
             

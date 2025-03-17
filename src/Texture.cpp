@@ -1,7 +1,8 @@
 #include <Texture.h>
 #include <iostream>
 
-Texture::Texture(const std::string& path){
+Texture::Texture() : format(nullptr){ }
+Texture::Texture(const std::string& path) : format(nullptr){
     LoadTexture(path);
 }
 Texture::~Texture(){
@@ -17,7 +18,7 @@ void Texture::LoadTexture(const std::string& path){
         return ;
     }
 
-    SDL_Surface* format = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
+    this->format = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
     SDL_FreeSurface(surface);
     if(!format){
         std::cerr << "SURFACE::CONVERT::ERROR: " << SDL_GetError() << std::endl;
@@ -30,6 +31,10 @@ void Texture::LoadTexture(const std::string& path){
     memcpy(img.pixel, format->pixels, img.height * img.width * sizeof(Uint32));
     SDL_FreeSurface(format);
 }
+
 Image Texture::GetImage() const{
     return this->img;
+}
+SDL_Surface* Texture::GetSurface() const{
+    return this->format;
 }
