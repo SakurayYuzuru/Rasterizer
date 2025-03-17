@@ -11,7 +11,7 @@ find_package(SDL2_image REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/include 
                     ${PROJECT_SOURCE_DIR}/include/Commands 
-                    ${SDL2_INCLUDE_DIRS}
+                    ${PROJECT_SOURCE_DIR}/external
                     ${SDL2_IMAGE_INCLUDE_DIRS})
 
 file(GLOB SRCS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/Commands/*.cpp)
