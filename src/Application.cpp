@@ -4,7 +4,7 @@
 
 #include <LoadMeshCommand.h>
 #include <LoadTextureCommand.h>
-#include <ShowBresenHam.h>
+#include <ShowBresenHamCommand.h>
 
 Application::Application() : cmd(), arg(cmd){
     Start();
@@ -17,15 +17,14 @@ void Application::Execute(){
 }
 
 void Application::Start(){
-    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
-    cmd.RegisterCommand("model", std::make_unique<LoadMeshCommand>(mesh));
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>();
-    cmd.RegisterCommand("texture", std::make_unique<LoadTextureCommand>(texture));
+    this->mesh = std::make_shared<Mesh>();
+    this->cmd.RegisterCommand("model", std::make_unique<LoadMeshCommand>(mesh));
+    this->texture = std::make_shared<Texture>();
+    this->cmd.RegisterCommand("texture", std::make_unique<LoadTextureCommand>(texture));
     this->rst = std::make_shared<Rasterizer>();
     this->camera = std::make_shared<Camera>();
 }
 void Application::Update(){
-    rst->BindCamera(camera);
     rst->BindCamera(camera);
 
     int flag = 1;
@@ -34,19 +33,23 @@ void Application::Update(){
         
         if(std::get<0>(command) == -1){         // exit
             flag = exit();
+        }else if(std::get<0>(command) == 1){
+            this->rst->BindMesh(this->mesh);
+            this->rst->BindTexture(this->texture);
+            this->cmd.RegisterEvent(std::get<1>(command), [&](){rst->Execute();});
         }else if(std::get<0>(command) == 2){    // bresen ham
-            cmd.RegisterEvent(std::get<1>(command), [&](){rst->ShowBresen();});
+            this->cmd.RegisterEvent(std::get<1>(command), [&](){rst->ShowBresen();});
         }else if(std::get<0>(command) == 3){    // rst
-            cmd.RegisterEvent(std::get<1>(command), [&](){rst->ShowRst();});
+            this->cmd.RegisterEvent(std::get<1>(command), [&](){rst->ShowRst();});
         }else if(std::get<0>(command) == 4){    // model
-            
+            // Load Model
         }else if(std::get<0>(command) == 5){    // texture
-
+            // Load Texture
         }
         else{
             command = std::make_tuple(0, "help", "");
         }
-        cmd.Execute(std::get<1>(command), std::get<2>(command));
+        this->cmd.Execute(std::get<1>(command), std::get<2>(command));
     }
 }
 void Application::Destroy(){ }

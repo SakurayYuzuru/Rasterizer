@@ -3,12 +3,16 @@
 
 #include <ExitCommand.h>
 #include <HelpCommand.h>
-#include <ShowBresenHam.h>
+#include <ShowBresenHamCommand.h>
+#include <ShowRstCommand.h>
+#include <ExecuteCommand.h>
 
 CommandManager::CommandManager() {
     commands["exit"] = std::make_unique<ExitCommand>();
     commands["help"] = std::make_unique<HelpCommand>();
-    commands["bresen_ham"] = std::make_unique<ShowBresenHam>();
+    commands["bresen_ham"] = std::make_unique<ShowBresenHamCommand>();
+    commands["rst"] = std::make_unique<ShowRstCommand>();
+    commands["run"] = std::make_unique<ExecuteCommand>();
 }
 CommandManager::~CommandManager() { }
 

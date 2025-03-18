@@ -314,6 +314,8 @@ void Rasterizer::draw(){
     }
 
     RenderCopy();
+    std::cout << 60 << std::endl;
+    SDL_Delay(16);
 }
 
 int Rasterizer::get_index(int x, int y) const{

@@ -22,7 +22,7 @@ void ArgumentParser::Destroy(){ }
 std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
     std::string input;
     while(true){
-        std::cout << "(SRasterizer) $ ";
+        std::cout << "(SRasterizer)$ ";
         std::getline(std::cin, input);
         std::istringstream iss(input);
         std::string command;

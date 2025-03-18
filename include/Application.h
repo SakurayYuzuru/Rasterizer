@@ -9,6 +9,8 @@
 #include <CommandManager.h>
 #include <Rasterizer.h>
 #include <Camera.h>
+#include <Mesh.h>
+#include <Texture.h>
 
 #include <memory>
 
@@ -29,6 +31,8 @@ private:
     CommandManager cmd;
     std::shared_ptr<Rasterizer> rst;
     std::shared_ptr<Camera> camera;
+    std::shared_ptr<Mesh> mesh;
+    std::shared_ptr<Texture> texture;
 };
 
 #endif
