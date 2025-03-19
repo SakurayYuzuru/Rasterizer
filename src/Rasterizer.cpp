@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
+#include <Shader.h>
 
 Rasterizer::Rasterizer(){
     Start();
@@ -17,12 +18,12 @@ Rasterizer& Rasterizer::GetInstance(){
 
 void Rasterizer::Start(){
     this->mesh = nullptr;
-    this->texture = nullptr;
 
     this->frame_count = 0;
     this->quit = false;
     this->frame_buf.resize(this->window.height() * this->window.width());
     this->z_buffer.resize(this->window.height() * this->window.width());
+    this->fragment_shader = Shader::normal_fragment_shader;
 }
 void Rasterizer::Update(){
     draw();
@@ -92,8 +93,8 @@ void Rasterizer::ShowRst(){
         triangle2.setColor(1, 255.0f, 0.0f, 0.0f);
         triangle2.setColor(2, 255.0f, 0.0f, 0.0f);
 
-        triangleRasterize(triangle1);
-        triangleRasterize(triangle2);
+        triangleRasterize(triangle1, this->camera->getView());
+        triangleRasterize(triangle2, this->camera->getView());
         RenderCopy();
     }
 }
@@ -190,7 +191,7 @@ void Rasterizer::drawTriangle(Triangle &t){
     drawLine(t.b(), t.c());
     drawLine(t.c(), t.a());
 }
-void Rasterizer::triangleRasterize(const Triangle &t){
+void Rasterizer::triangleRasterize(const Triangle &t, const Math::Vector3f& eye_pos){
     auto v = t.toVector4();
 
     float min_x = window.width(), max_x = 0;
@@ -213,7 +214,19 @@ void Rasterizer::triangleRasterize(const Triangle &t){
 
                 int index = get_index(x, y);
                 if(z_interpolated < z_buffer[index]){
-                    set_pixel(Math::Vector3f(x, y, z_interpolated), Color::lerp(t.GetColor(0), t.GetColor(1), t.GetColor(2), alpha, beta, gamma));
+                    auto interpolated_color = Math::interpolate(alpha, beta, gamma, t.GetColor(0).GetRGB(), t.GetColor(1).GetRGB(), t.GetColor(2).GetRGB(), 1);
+                    auto interpolated_normal = Math::interpolate(alpha, beta, gamma, t.GetNormal(0), t.GetNormal(1), t.GetNormal(2), 1).normalized();
+                    auto interpolated_texcoords = Math::interpolate(alpha, beta, gamma, t.GetTexture(0), t.GetTexture(1), t.GetTexture(2), 1);
+                    auto interpolated_shadingcoords = Math::interpolate(alpha, beta, gamma, t.a(), t.b(), t.c(), 1);
+                    Vertex payload;
+                    payload.color = interpolated_color;
+                    payload.normal = interpolated_normal.normalized();
+                    payload.uv = interpolated_texcoords;
+                    payload.v = interpolated_shadingcoords;
+
+                    Color pixel_color = fragment_shader(payload, eye_pos);
+
+                    set_pixel(Math::Vector3f(x, y, z_interpolated), pixel_color);
                     z_buffer[index] = z_interpolated;
                 }
             }
@@ -225,21 +238,15 @@ void Rasterizer::RenderCopy() {
     int pitch;
     SDL_LockTexture(this->window.GetTexture(), nullptr, &pixels, &pitch);
 
-    if(!texture){
-        for (int y = 0; y < this->window.height(); ++y) {
-            for (int x = 0; x < this->window.width(); ++x) {
-                auto index = get_index(x, y);
-                Color color = frame_buf[index];
-                Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
-                *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
-            }
+    for (int y = 0; y < this->window.height(); ++y) {
+        for (int x = 0; x < this->window.width(); ++x) {
+            auto index = get_index(x, y);
+            Color color = frame_buf[index];
+            Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
+            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
         }
-    }else{
-        frame_buf.resize(texture->GetImage().width * texture->GetImage().height);
-        frame_buf.assign((Color*)texture->GetImage().pixel, 
-                            (Color*)texture->GetSurface()->pixels + (texture->GetSurface()->w * texture->GetSurface()->h));
     }
-
+    
     SDL_UnlockTexture(this->window.GetTexture());
     SDL_RenderCopy(this->window.GetRenderer(), this->window.GetTexture(), nullptr, nullptr);
     SDL_RenderPresent(this->window.GetRenderer());
@@ -310,7 +317,7 @@ void Rasterizer::draw(){
         }
 
         drawTriangle(triangle);
-        triangleRasterize(triangle);
+        triangleRasterize(triangle, this->camera->getView());
     }
 
     RenderCopy();
@@ -336,9 +343,6 @@ void Rasterizer::BindCamera(std::shared_ptr<Camera> _camera){
 }
 void Rasterizer::BindMesh(std::shared_ptr<Mesh> meshes){
     this->mesh = std::move(meshes);
-}
-void Rasterizer::BindTexture(std::shared_ptr<Texture> tex){
-    this->texture = std::move(tex);
 }
 
 bool Rasterizer::insideTriangle(float x, float y, const std::vector<Math::Vector3f> v){

@@ -11,12 +11,12 @@
 #include <Transformation.h>
 #include <Camera.h>
 #include <Mesh.h>
-#include <Texture.h>
 
 #include <tuple>
 #include <vector>
 #include <map>
 #include <memory>
+#include <functional>
 
 class Rasterizer : public IManager{
 public:
@@ -51,7 +51,7 @@ private:
     void draw();
     void drawLine(const Math::Vector3f &begin, const Math::Vector3f &end);
     void drawTriangle(Triangle &t);
-    void triangleRasterize(const Triangle &t);
+    void triangleRasterize(const Triangle &t, const Math::Vector3f& eye_pos);
 
     bool insideTriangle(float x, float y, const std::vector<Math::Vector3f> v);
     std::tuple<float, float, float> computeBarycentric2D(float x, float y, const std::vector<Math::Vector3f> v);
@@ -84,7 +84,7 @@ private:
     std::shared_ptr<Camera> camera;
     Window window;
     std::shared_ptr<Mesh> mesh;
-    std::shared_ptr<Texture> texture;
+    std::function<Color(const Vertex&, const Math::Vector3f&)> fragment_shader;
 
     bool quit;
     int next_id = 0;

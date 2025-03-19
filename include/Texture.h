@@ -6,24 +6,29 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
 
-#include <string>
+#include <Color.h>
+#include <Math.h>
 
-struct Image{
-    int width, height;
-    Uint32* pixel;
-};
+#include <vector>
+#include <string>
 
 class Texture{
 public:
     Texture();
     Texture(const std::string& path);
     ~Texture();
+
     void LoadTexture(const std::string& path);
-    Image GetImage() const;
-    SDL_Surface* GetSurface() const;
+    
+    int width() const;
+    int height() const;
+
+    Color GetColor(float u, float v);
+    Color GetColor(Math::Vector2f uv);
+
 private:
-    Image img;
-    SDL_Surface* format;
+    std::vector<std::vector<Color>> img;
+    int w, h;
 };
 
 #endif

@@ -124,7 +124,8 @@ namespace Math{
         Matrix operator-(const Matrix& m) const;
         Matrix operator*(const Matrix& m) const;
         Matrix operator*(const float &k) const;
-        Vector4f operator*(const Vector4f &v) const;
+        Vector3f operator*(const Vector3f& v) const;
+        Vector4f operator*(const Vector4f& v) const;
         Matrix operator/(const float &k) const;
         Matrix& operator=(const Matrix& m);
 
@@ -148,6 +149,8 @@ namespace Math{
 
     float radians(float degrees);
     Vector3f radians(Vector3f &angle);
+    Vector3f interpolate(float alpha, float beta, float gamma, const Vector3f& vec1, const Vector3f& vec2, const Vector3f& vec3, float weight);
+    Vector2f interpolate(float alpha, float beta, float gamma, const Vector2f& vec1, const Vector2f& vec2, const Vector2f& vec3, float weight);
 };
 
 #endif

@@ -7,22 +7,26 @@ Triangle::Triangle(){
     vertexes[1] = Vertex();
     vertexes[2] = Vertex();
 }
+Triangle::~Triangle() { }
 
-Math::Vector3f Triangle::a(){
+Math::Vector3f Triangle::a() const{
     return this->vertexes[0].v;
 }
-Math::Vector3f Triangle::b(){
+Math::Vector3f Triangle::b() const{
     return this->vertexes[1].v;
 }
-Math::Vector3f Triangle::c(){
+Math::Vector3f Triangle::c() const{
     return this->vertexes[2].v;
 }
 
 void Triangle::setVertex(int index, Math::Vector3f vertex){
     vertexes[index].v = vertex;
 }
-void Triangle::setVertex(int index, const Vertex& vertex){
-    vertexes[index] = vertex;
+void Triangle::setVertex(int index, Vertex vertex){
+    setVertex(index, vertex.v);
+    setColor(index, vertex.color.r, vertex.color.g, vertex.color.b);
+    setTexture(index, vertex.uv.x, vertex.uv.y);
+    setNormal(index, vertex.normal);
 }
 void Triangle::setColor(int index, float r, float g, float b){
     vertexes[index].color = Color(r, g, b);
@@ -56,12 +60,4 @@ std::array<Math::Vector4f, 3> Triangle::toVector4() const{
     });
 
     return res;
-}
-
-Triangle Triangle::operator*(Math::Matrix &m){
-    for(int i = 0; i < 3; ++ i){
-        this->vertexes[i].v = this->vertexes[i].v * m;
-    }
-
-    return *this;
 }

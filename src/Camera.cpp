@@ -26,6 +26,11 @@ void Camera::Destroy(){ }
 Math::Matrix Camera::getViewMatrix(){
     return Transformation::lookat(this->position, this->position + this->front, this->up);
 }
+Math::Vector3f Camera::getView() const{
+    return Math::Vector3f(Transformation::lookat(this->position, this->position + this->front, this->up)[0][0],
+    Transformation::lookat(this->position, this->position + this->front, this->up)[1][1],
+    Transformation::lookat(this->position, this->position + this->front, this->up)[2][2]);
+}
 
 float Camera::deltaTime(){
     uint32_t curTime = SDL_GetTicks();

@@ -35,7 +35,6 @@ void Application::Update(){
             flag = exit();
         }else if(std::get<0>(command) == 1){
             this->rst->BindMesh(this->mesh);
-            this->rst->BindTexture(this->texture);
             this->cmd.RegisterEvent(std::get<1>(command), [&](){rst->Execute();});
         }else if(std::get<0>(command) == 2){    // bresen ham
             this->cmd.RegisterEvent(std::get<1>(command), [&](){rst->ShowBresen();});

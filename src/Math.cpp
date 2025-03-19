@@ -275,6 +275,16 @@ Math::Matrix Math::Matrix::operator*(const float &k) const {
     }
     return result;
 }
+Math::Vector3f Math::Matrix::operator*(const Vector3f& v) const{
+    Vector3f res;
+    for(int i = 0; i < 3; ++ i){
+        for(int j = 0; j < 3; ++ j){
+            res[i] += v[i] * (*this)[i][j];
+        }
+    }
+
+    return res;
+}
 Math::Vector4f Math::Matrix::operator*(const Vector4f &v) const{
     Vector4f res;
     for(int i = 0; i < 4; ++ i){
@@ -384,4 +394,17 @@ const std::vector<float>& Math::Matrix::operator[](int index) const {
         throw std::out_of_range("Index out of range");
     }
     return data[index];
+}
+
+Math::Vector3f Math::interpolate(float alpha, float beta, float gamma, const Math::Vector3f& vec1, const Math::Vector3f& vec2, const Math::Vector3f& vec3, float weight){
+    return (vec1 * alpha + vec2 * beta + vec3 * gamma) / weight;
+}
+Math::Vector2f Math::interpolate(float alpha, float beta, float gamma, const Math::Vector2f& vec1, const Math::Vector2f& vec2, const Math::Vector2f& vec3, float weight){
+    auto u = (alpha * vec1.x + beta * vec2.x + gamma * vec3.x);
+    auto v = (alpha * vec1.y + beta * vec2.y + gamma * vec3.x);
+    
+    u /= weight;
+    v /= weight;
+
+    return Math::Vector2f(u, v);
 }

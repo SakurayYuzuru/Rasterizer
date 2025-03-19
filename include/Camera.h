@@ -31,6 +31,7 @@ public:
     ~Camera();
 
     Math::Matrix getViewMatrix();
+    Math::Vector3f getView() const;
 
     float deltaTime();
 
