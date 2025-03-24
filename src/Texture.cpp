@@ -54,8 +54,8 @@ Color Texture::GetColor(float u, float v){
         v = 1.0f;
     }
 
-    auto u_img = u * this->w;
-    auto v_img = (1 - v) * this->h;
+    auto u_img = u * (this->w - 1);
+    auto v_img = v * (this->h - 1);
 
     auto color = this->img[v_img][u_img];
     return color;

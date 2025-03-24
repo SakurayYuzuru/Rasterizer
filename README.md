@@ -33,3 +33,6 @@ Basic components of a rasterizer were implemented along with the following exten
 
 ### Color Blending
 ![Color Blending](/ScreenShot/Color%20Blending.png)
+
+### Z-Buffer
+![Z-buffer](/ScreenShot/ZBuffer.png)

@@ -12,7 +12,6 @@ void Application::Execute(){
 
 void Application::Start(){
     this->mesh = std::make_shared<Mesh>();
-    this->texture = std::make_shared<Texture>();
     this->rst = std::make_shared<Rasterizer>();
     this->camera = std::make_shared<Camera>();
 }
@@ -38,7 +37,7 @@ void Application::Update(){
             this->cmd.RegisterEvent(std::get<1>(command), [&](){this->mesh->LoadMesh(std::get<2>(command));});
         }else if(std::get<0>(command) == 5){    // texture
             // Load Texture
-            this->cmd.RegisterEvent(std::get<1>(command), [&](){this->texture->LoadTexture(std::get<2>(command));});
+            this->cmd.RegisterEvent(std::get<1>(command), [&](){this->texture.LoadTexture(std::get<2>(command));});
         }else if(std::get<0>(command) == 6){
             this->cmd.RegisterEvent(std::get<1>(command), [&](){this->rst->SetShader(std::get<2>(command));});
         }else{

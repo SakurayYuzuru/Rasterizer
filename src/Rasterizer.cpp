@@ -24,6 +24,7 @@ void Rasterizer::Start(){
     this->frame_buf.resize(this->window.height() * this->window.width());
     this->z_buffer.resize(this->window.height() * this->window.width());
     this->fragment_shader = Shader::phong_fragment_shader;
+    this->texture = std::nullopt;
 }
 void Rasterizer::Update(){
     draw();
@@ -82,16 +83,16 @@ void Rasterizer::ShowRst(){
         triangle1.setVertex(0, Math::Vector3f(400.0f, 200.0f, 1.0f));
         triangle1.setVertex(1, Math::Vector3f(200.0f, 600.0f, 1.0f));
         triangle1.setVertex(2, Math::Vector3f(600.0f, 600.0f, 1.0f));
-        triangle1.setColor(0, 0.0f, 255.0f, 0.0f);
-        triangle1.setColor(1, 0.0f, 255.0f, 0.0f);
-        triangle1.setColor(2, 0.0f, 255.0f, 0.0f);
+        triangle1.setColor(0, 0.0f, 1.0f, 0.0f);
+        triangle1.setColor(1, 0.0f, 1.0f, 0.0f);
+        triangle1.setColor(2, 0.0f, 1.0f, 0.0f);
 
         triangle2.setVertex(0, Math::Vector3f(300.0f, 300.0f, 5.0f));
         triangle2.setVertex(1, Math::Vector3f(265.0f, 665.0f, 5.0f));
         triangle2.setVertex(2, Math::Vector3f(665.0f, 665.0f, 5.0f));
-        triangle2.setColor(0, 255.0f, 0.0f, 0.0f);
-        triangle2.setColor(1, 255.0f, 0.0f, 0.0f);
-        triangle2.setColor(2, 255.0f, 0.0f, 0.0f);
+        triangle2.setColor(0, 1.0f, 0.0f, 0.0f);
+        triangle2.setColor(1, 1.0f, 0.0f, 0.0f);
+        triangle2.setColor(2, 1.0f, 0.0f, 0.0f);
 
         triangleRasterize(triangle1);
         triangleRasterize(triangle2);
@@ -255,9 +256,10 @@ void Rasterizer::triangleRasterize(const Triangle &t, const Math::Vector3f& eye_
                     payload.normal = interpolated_normal.normalized();
                     payload.uv = interpolated_texcoords;
                     payload.v = interpolated_shadingcoords;
-                    payload.texture = this->texture;
+                    payload.texture = texture ? std::make_shared<Texture>(*texture) : nullptr;
 
                     Color pixel_color = fragment_shader(payload, eye_pos);
+                    // std::cout << pixel_color.r << " " << pixel_color.g << " " << pixel_color.b << std::endl;
 
                     set_pixel(Math::Vector3f(x, y, z_interpolated), pixel_color);
                     z_buffer[index] = z_interpolated;
@@ -275,8 +277,8 @@ void Rasterizer::RenderCopy() {
         for (int x = 0; x < this->window.width(); ++x) {
             auto index = get_index(x, y);
             Uint32 color = frame_buf[index].toUInt();
-            Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
-            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), (color >> 24 & 0xFF), (color >> 16 & 0xFFFF), (color >> 8 & 0xFFFFFF), color & 0xFFFFFFFF);
+            Uint32* pixel = static_cast<Uint32*>(pixels) + y * (pitch / 4) + x;
+            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), (color >> 24) & 0xFF, (color >> 16) & 0xFFFF, (color >> 8) & 0xFFFFFF, color & 0xFFFFFFFF);
         }
     }
     
@@ -313,7 +315,7 @@ void Rasterizer::draw(){
     
     clear();
 
-    set_model(Transformation::get_model_matrix(140.0f));
+    set_model(Transformation::get_model_matrix(10.0f));
     set_view(this->camera->getViewMatrix());
     set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
     Math::Matrix mvp = projection * view * model;
@@ -348,8 +350,6 @@ void Rasterizer::draw(){
         for (int i = 0; i < 3; ++i){
             triangle.setVertex(i, v[i].to_Vector3f());
         }
-
-        drawTriangle(triangle);
         triangleRasterize(triangle, this->camera->getView());
     }
 
@@ -375,7 +375,7 @@ void Rasterizer::BindCamera(std::shared_ptr<Camera> _camera){
 void Rasterizer::BindMesh(std::shared_ptr<Mesh> meshes){
     this->mesh = std::move(meshes);
 }
-void Rasterizer::BindTexture(std::shared_ptr<Texture> tex){
+void Rasterizer::BindTexture(Texture tex){
     this->texture = tex;
 }
 void Rasterizer::SetShader(const std::string& shader){

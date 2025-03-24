@@ -18,6 +18,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <optional>
 
 class Rasterizer : public IManager{
 public:
@@ -41,7 +42,7 @@ public:
     void Execute();
     void BindCamera(std::shared_ptr<Camera> _camera);
     void BindMesh(std::shared_ptr<Mesh> meshes);
-    void BindTexture(std::shared_ptr<Texture> tex);
+    void BindTexture(Texture tex);
     void SetShader(const std::string& shader);
 
 private:
@@ -88,7 +89,7 @@ private:
     Window window;
     std::shared_ptr<Mesh> mesh;
     std::function<Color(const Vertex&, const Math::Vector3f&)> fragment_shader;
-    std::shared_ptr<Texture> texture;
+    std::optional<Texture> texture;
 
     bool quit;
     int next_id = 0;
