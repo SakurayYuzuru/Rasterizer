@@ -70,6 +70,17 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
                     continue;
                 }
             }
+        }else if(command == "shader"){
+            if(arg.empty()){
+                return std::make_tuple(0, "help", arg);
+            }else{
+                this->cmdManager.Execute(command, arg);
+                if(this->cmdManager.find(command)){
+                    return std::make_tuple(6, command, arg);
+                }else{
+                    continue;
+                }
+            }
         }else{
             return std::make_tuple(0, "help", arg);
         }

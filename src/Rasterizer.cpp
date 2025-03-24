@@ -23,7 +23,7 @@ void Rasterizer::Start(){
     this->quit = false;
     this->frame_buf.resize(this->window.height() * this->window.width());
     this->z_buffer.resize(this->window.height() * this->window.width());
-    this->fragment_shader = Shader::normal_fragment_shader;
+    this->fragment_shader = Shader::phong_fragment_shader;
 }
 void Rasterizer::Update(){
     draw();
@@ -93,8 +93,8 @@ void Rasterizer::ShowRst(){
         triangle2.setColor(1, 255.0f, 0.0f, 0.0f);
         triangle2.setColor(2, 255.0f, 0.0f, 0.0f);
 
-        triangleRasterize(triangle1, this->camera->getView());
-        triangleRasterize(triangle2, this->camera->getView());
+        triangleRasterize(triangle1);
+        triangleRasterize(triangle2);
         RenderCopy();
     }
 }
@@ -191,6 +191,38 @@ void Rasterizer::drawTriangle(Triangle &t){
     drawLine(t.b(), t.c());
     drawLine(t.c(), t.a());
 }
+void Rasterizer::triangleRasterize(const Triangle &t){
+    auto v = t.toVector4();
+
+    float min_x = window.width(), max_x = 0;
+    float min_y = window.height(), max_y = 0;
+
+    for(int i = 0; i < 3; ++ i){
+        min_x = std::min(v[i].x, min_x);
+        max_x = std::max(v[i].x, max_x);
+        min_y = std::min(v[i].y, min_y);
+        max_y = std::max(v[i].y, max_y);
+    }
+
+    for(int y = min_y; y < max_y; ++ y){
+        for(int x = min_x; x < max_x; ++ x){
+            if(insideTriangle(static_cast<float>(x) + 0.5f, static_cast<float>(y) + 0.5f, t.v())){
+                auto [alpha, beta, gamma] = computeBarycentric2D(x + 0.5f, y + 0.5f, t.v());
+                float w_reciprocal = 1.0f / (alpha / v[0].w + beta / v[1].w + gamma / v[2].w);
+                float z_interpolated = alpha * v[0].z / v[0].w + beta * v[1].z / v[1].w + gamma * v[2].z / v[2].w;
+                z_interpolated *= w_reciprocal;
+
+                int index = get_index(x, y);
+                if(z_interpolated < z_buffer[index]){
+                    Color pixel_color = Color::lerp(t.GetColor(0), t.GetColor(1), t.GetColor(2), alpha, beta, gamma);
+
+                    set_pixel(Math::Vector3f(x, y, z_interpolated), pixel_color);
+                    z_buffer[index] = z_interpolated;
+                }
+            }
+        }
+    }
+}
 void Rasterizer::triangleRasterize(const Triangle &t, const Math::Vector3f& eye_pos){
     auto v = t.toVector4();
 
@@ -223,6 +255,7 @@ void Rasterizer::triangleRasterize(const Triangle &t, const Math::Vector3f& eye_
                     payload.normal = interpolated_normal.normalized();
                     payload.uv = interpolated_texcoords;
                     payload.v = interpolated_shadingcoords;
+                    payload.texture = this->texture;
 
                     Color pixel_color = fragment_shader(payload, eye_pos);
 
@@ -241,9 +274,9 @@ void Rasterizer::RenderCopy() {
     for (int y = 0; y < this->window.height(); ++y) {
         for (int x = 0; x < this->window.width(); ++x) {
             auto index = get_index(x, y);
-            Color color = frame_buf[index];
+            Uint32 color = frame_buf[index].toUInt();
             Uint32* pixel = (Uint32*)pixels + y * (pitch / 4) + x;
-            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
+            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), (color >> 24 & 0xFF), (color >> 16 & 0xFFFF), (color >> 8 & 0xFFFFFF), color & 0xFFFFFFFF);
         }
     }
     
@@ -321,8 +354,6 @@ void Rasterizer::draw(){
     }
 
     RenderCopy();
-    std::cout << 60 << std::endl;
-    SDL_Delay(16);
 }
 
 int Rasterizer::get_index(int x, int y) const{
@@ -343,6 +374,24 @@ void Rasterizer::BindCamera(std::shared_ptr<Camera> _camera){
 }
 void Rasterizer::BindMesh(std::shared_ptr<Mesh> meshes){
     this->mesh = std::move(meshes);
+}
+void Rasterizer::BindTexture(std::shared_ptr<Texture> tex){
+    this->texture = tex;
+}
+void Rasterizer::SetShader(const std::string& shader){
+    if(shader == "normal"){
+        this->fragment_shader = Shader::normal_fragment_shader;
+    }else if(shader == "phong"){
+        this->fragment_shader = Shader::phong_fragment_shader;
+    }else if(shader == "displace"){
+        this->fragment_shader = Shader::displacement_fragment_shader;
+    }else if(shader == "texture"){
+        this->fragment_shader = Shader::texture_fragment_shader;
+    }else if(shader == "bump"){
+        this->fragment_shader = Shader::bump_fragment_shader;
+    }else{
+        std::cerr << "Invalid Shader Input" << std::endl;
+    }
 }
 
 bool Rasterizer::insideTriangle(float x, float y, const std::vector<Math::Vector3f> v){

@@ -1,8 +1,9 @@
 #include <LoadMeshCommand.h>
+#include <iostream>
 
-LoadMeshCommand::LoadMeshCommand(std::shared_ptr<Mesh> mesh) : mesh(mesh) { }
+LoadMeshCommand::LoadMeshCommand() { }
 LoadMeshCommand::~LoadMeshCommand() { }
 
 void LoadMeshCommand::Execute(const std::string& arg){
-    this->mesh->LoadMesh(arg);
+    std::cout << "Loading Model..." << std::endl;
 }

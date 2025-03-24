@@ -15,7 +15,7 @@ struct Vertex{
     Math::Vector2f uv;
     Color color;
     Math::Vector3f normal;
-    std::unique_ptr<Texture> texture;
+    std::shared_ptr<Texture> texture;
 
     Vertex(){
         v = Math::Vector3f::Identity();
@@ -24,7 +24,7 @@ struct Vertex{
         normal = Math::Vector3f::Identity();
         texture = nullptr;
     }
-    Vertex(std::unique_ptr<Texture> tex){
+    Vertex(std::shared_ptr<Texture> tex){
         texture = std::move(tex);
     }
 

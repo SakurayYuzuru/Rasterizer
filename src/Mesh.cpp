@@ -55,7 +55,6 @@ void Mesh::LoadMesh(const std::string& filepath){
                     }
                     i++;
                 }
-
                 face.index.push_back(indices[0]);
                 face.uvIndex.push_back(indices[1]);
                 face.nIndex.push_back(indices[2]);
@@ -77,6 +76,14 @@ void Mesh::LoadMesh(const std::string& filepath){
             triFace.uvIndex = {face.uvIndex[0], face.uvIndex[i], face.uvIndex[i + 1]};
             triFace.nIndex = {face.nIndex[0], face.nIndex[i], face.nIndex[i + 1]};
             faces.push_back(triFace);
+
+            for (int j = 0; j < 3; j++) {
+                Vertex v;
+                v.v = positions[triFace.index[j]];
+                v.uv = (triFace.uvIndex[j] >= 0) ? texCoords[triFace.uvIndex[j]] : Math::Vector2f(0.0f, 0.0f);
+                v.normal = (triFace.nIndex[j] >= 0) ? normals[triFace.nIndex[j]] : Math::Vector3f(0.0f, 0.0f, 0.0f);
+                vertices.push_back(v);
+            }
         }
     }
 }

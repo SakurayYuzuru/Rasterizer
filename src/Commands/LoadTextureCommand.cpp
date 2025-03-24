@@ -1,8 +1,9 @@
 #include <LoadTextureCommand.h>
+#include <iostream>
 
-LoadTextureCommand::LoadTextureCommand(std::shared_ptr<Texture> tex) : texture(tex) { }
+LoadTextureCommand::LoadTextureCommand() { }
 LoadTextureCommand::~LoadTextureCommand() { }
 
 void LoadTextureCommand::Execute(const std::string& arg){
-    this->texture->LoadTexture(arg);
+    std::cout << "Loading Texture..." << std::endl;
 }

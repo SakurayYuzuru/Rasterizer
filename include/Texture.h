@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL.h>
+#include <stb_image.h>
 
 #include <Color.h>
 #include <Math.h>

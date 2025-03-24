@@ -5,38 +5,32 @@ Texture::Texture(){ }
 Texture::Texture(const std::string& path){
     LoadTexture(path);
 }
-Texture::~Texture(){
-    IMG_Quit();
-}
+Texture::~Texture(){ }
 
 void Texture::LoadTexture(const std::string& path){
-    SDL_Surface* surface = IMG_Load(path.c_str());
-
-    if(!surface){
-        std::cerr << "IMAGE::LOAD::ERROR: " << IMG_GetError() << std::endl;
+    int npComponents;
+    unsigned char *data = stbi_load(path.c_str(), &this->h, &this->w, &npComponents, 0);
+    if(!data){
+        std::cerr << "Texture::Load::Error" << std::endl;
+        stbi_image_free(data);
         return ;
     }
 
-    SDL_Surface* format = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
-    SDL_FreeSurface(surface);
-    if(!format){
-        std::cerr << "SURFACE::CONVERT::ERROR: " << SDL_GetError() << std::endl;
-        return ;
-    }
+    this->img.resize(this->h, std::vector<Color>(this->w));
+    for(int y = 0; y < this->h; ++ y){
+        for(int x = 0; x < this->w; ++ x){
+            int index = (y * this->w + x) * npComponents;
+            float r = data[index] / 255.0f;
+            float g = data[index + 1] / 255.0f;
+            float b = data[index + 2] / 255.0f;
+            float a = npComponents == 4 ? data[index + 3] / 255.0f : 1.0f;
 
-    this->w = format->w;
-    this->h = format->h;
-
-    Uint32* pixels = static_cast<Uint32*>(format->pixels);
-
-    for(int y = 0; y < h; ++ y){
-        for(int x = 0; x < w; ++ x){
-            Uint32 pixel = pixels[y * w + x];
-            Uint8 r, g, b, a;
-            SDL_GetRGBA(pixel, format->format, &r, &g, &b, &a);
-            this->img[y][x] = Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+            this->img[y][x] = Color(r, g, b, a);
+            // std::cout << r << " " << g << " " << b << std::endl;
         }
     }
+
+    stbi_image_free(data);
 }
 
 int Texture::width() const{

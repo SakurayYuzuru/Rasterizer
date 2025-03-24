@@ -12,13 +12,10 @@
 
 class LoadMeshCommand : public ICommand{
 public:
-    LoadMeshCommand(std::shared_ptr<Mesh> mesh);
+    LoadMeshCommand();
     ~LoadMeshCommand();
 
     void Execute(const std::string& arg) override;
-
-private:
-    std::shared_ptr<Mesh> mesh;
 };
 
 #endif

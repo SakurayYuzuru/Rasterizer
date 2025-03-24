@@ -28,7 +28,7 @@ Color::Color(float _r, float _g, float _b, float _a){
     if((_r < 0.0f) || (_r > 255.0f) || 
         (_g < 0.0f) || (_g > 255.0f) || 
         (_b < 0.0f) || (_b > 255.0f) ||
-        (_a < 0.0f) || (_a > 1.0f)){
+        (_a < 0.0f) || (_a > 255.0f)){
         std::cerr << "Invalid Color Value: " << _r << " " << _g << " " << _b << std::endl;
     }
 

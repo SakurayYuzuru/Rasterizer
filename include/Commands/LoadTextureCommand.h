@@ -10,13 +10,10 @@
 
 class LoadTextureCommand : public ICommand{
 public:
-    LoadTextureCommand(std::shared_ptr<Texture> tex);
+    LoadTextureCommand();
     ~LoadTextureCommand();
 
     void Execute(const std::string& arg) override;
-    
-private:
-    std::shared_ptr<Texture> texture;
 };
 
 #endif
