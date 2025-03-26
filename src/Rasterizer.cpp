@@ -129,12 +129,12 @@ void Rasterizer::ShowZBuffer(){
 }
 void Rasterizer::TestTexture(){
     Triangle t1, t2;
-    t1.setVertex(0, Math::Vector3f(300.0f, 300.0f, 0.0f));
-    t1.setVertex(1, Math::Vector3f(600.0f, 600.0f, 0.0f));
-    t1.setVertex(2, Math::Vector3f(300.0f, 600.0f, 0.0f));
-    t2.setVertex(1, Math::Vector3f(600.0f, 600.0f, 0.0f));
-    t2.setVertex(2, Math::Vector3f(300.0f, 600.0f, 0.0f));
-    t2.setVertex(1, Math::Vector3f(600.0f, 300.0f, 0.0f));
+    t1.setVertex(0, Math::Vector3f(2.0f, -2.0f, 15.0f));
+    t1.setVertex(1, Math::Vector3f(2.0f, 2.0f, 15.0f));
+    t1.setVertex(2, Math::Vector3f(-2.0f, -2.0f, 15.0f));
+    t2.setVertex(1, Math::Vector3f(2.0f, 2.0f, 15.0f));
+    t2.setVertex(2, Math::Vector3f(-2.0f, -2.0f, 15.0f));
+    t2.setVertex(1, Math::Vector3f(-2.0f, 2.0f, 15.0f));
 
     t1.setTexture(0, 1.0f, -1.0f);
     t1.setTexture(1, 1.0f, 1.0f);
@@ -143,7 +143,6 @@ void Rasterizer::TestTexture(){
     t2.setTexture(1, -1.0f, -1.0f);
     t2.setTexture(2, -1.0f, 1.0f);
     std::vector<Triangle> list = {t1, t2};
-    this->texture->LoadTexture("../assets/container/container.jpg");
 
     while(!this->quit){
         while(SDL_PollEvent(&e)){
@@ -373,9 +372,9 @@ void Rasterizer::RenderCopy() {
     for (int y = 0; y < this->window.height(); ++y) {
         for (int x = 0; x < this->window.width(); ++x) {
             auto index = get_index(x, y);
-            Uint32 color = frame_buf[index].toUInt();
+            Color color = frame_buf[index] * 255.0f;
             Uint32* pixel = static_cast<Uint32*>(pixels) + y * (pitch / 4) + x;
-            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), (color >> 24) & 0xFF, (color >> 16) & 0xFFFF, (color >> 8) & 0xFFFFFF, color & 0xFFFFFFFF);
+            *pixel = SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), color.r, color.g, color.b, color.a);
         }
     }
     

@@ -74,5 +74,6 @@ Color Texture::GetColor(Math::Vector2f uv){
     Uint8 ur, ug, ub, ua;
     SDL_GetRGBA(color, texture->format, &ur, &ug, &ub, &ua);
     float r = ur / 255.0f, g = ug / 255.0f, b = ub / 255.0f, a = ua / 255.0f;
+
     return {r, g, b, a};
 }

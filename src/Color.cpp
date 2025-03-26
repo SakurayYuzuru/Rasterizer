@@ -3,11 +3,11 @@
 #include <SDL2/SDL.h>
 
 Color::Color(float _r, float _g, float _b){
-    if((_r < 0.0f) || (_r > 255.0f) || 
-        (_g < 0.0f) || (_g > 255.0f) || 
-        (_b < 0.0f) || (_b > 255.0f)){
-        std::cerr << "Invalid Color Value: " << _r << " " << _g << " " << _b << std::endl;
-    }
+    // if((_r < 0.0f) || (_r > 255.0f) || 
+    //     (_g < 0.0f) || (_g > 255.0f) || 
+    //     (_b < 0.0f) || (_b > 255.0f)){
+    //     std::cerr << "Invalid Color Value: " << _r << " " << _g << " " << _b << std::endl;
+    // }
 
     this->r = _r;
     this->g = _g;
@@ -15,11 +15,11 @@ Color::Color(float _r, float _g, float _b){
     this->a = 1.0f;
 }
 Color::Color(Math::Vector3f color){
-    if((color.x < 0.0f) || (color.x > 255.0f) || 
-        (color.y < 0.0f) || (color.y > 255.0f) || 
-        (color.z < 0.0f) || (color.z > 255.0f)){
-        std::cerr << "Invalid Color Value: " << color.x << " " << color.y << " " << color.z << std::endl;
-    }
+    // if((color.x < 0.0f) || (color.x > 255.0f) || 
+    //     (color.y < 0.0f) || (color.y > 255.0f) || 
+    //     (color.z < 0.0f) || (color.z > 255.0f)){
+    //     std::cerr << "Invalid Color Value: " << color.x << " " << color.y << " " << color.z << std::endl;
+    // }
 
     this->r = color.x;
     this->g = color.y;
@@ -27,12 +27,12 @@ Color::Color(Math::Vector3f color){
     this->a = 1.0f;
 }
 Color::Color(float _r, float _g, float _b, float _a){
-    if((_r < 0.0f) || (_r > 255.0f) || 
-        (_g < 0.0f) || (_g > 255.0f) || 
-        (_b < 0.0f) || (_b > 255.0f) ||
-        (_a < 0.0f) || (_a > 255.0f)){
-        std::cerr << "Invalid Color Value: " << _r << " " << _g << " " << _b << std::endl;
-    }
+    // if((_r < 0.0f) || (_r > 255.0f) || 
+    //     (_g < 0.0f) || (_g > 255.0f) || 
+    //     (_b < 0.0f) || (_b > 255.0f) ||
+    //     (_a < 0.0f) || (_a > 255.0f)){
+    //     std::cerr << "Invalid Color Value: " << _r << " " << _g << " " << _b << std::endl;
+    // }
 
     this->r = _r;
     this->g = _g;

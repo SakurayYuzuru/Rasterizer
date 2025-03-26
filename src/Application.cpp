@@ -17,6 +17,8 @@ void Application::Start(){
 }
 void Application::Update(){
     rst->BindCamera(camera);
+    texture.LoadTexture("../assets/container/container.jpg");
+    rst->BindTexture(texture);
     rst->TestTexture();
 
     // int flag = 1;
