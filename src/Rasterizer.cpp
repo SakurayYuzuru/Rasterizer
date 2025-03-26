@@ -23,7 +23,7 @@ void Rasterizer::Start(){
     this->quit = false;
     this->frame_buf.resize(this->window.height() * this->window.width());
     this->z_buffer.resize(this->window.height() * this->window.width());
-    this->fragment_shader = Shader::phong_fragment_shader;
+    this->fragment_shader = Shader::texture_fragment_shader;
     this->texture = std::nullopt;
 }
 void Rasterizer::Update(){
@@ -76,6 +76,34 @@ void Rasterizer::ShowRst(){
 
         Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
         SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+            
+        clear();
+
+        Triangle t;
+        t.setVertex(0, Math::Vector3f(540.0f, 320.0f, 0.0f));
+        t.setVertex(1, Math::Vector3f(270.0f, 640.0f, 0.0f));
+        t.setVertex(2, Math::Vector3f(810.0f, 640.0f, 0.0f));
+        t.setColor(0, 1.0f, 0.0f, 0.0f);
+        t.setColor(1, 0.0f, 1.0f, 0.0f);
+        t.setColor(2, 0.0f, 0.0f, 1.0f);
+    
+        triangleRasterize(t);
+        RenderCopy();
+    }
+}
+void Rasterizer::ShowZBuffer(){
+    while(!this->quit){
+        while(SDL_PollEvent(&e)){
+            if(e.type == SDL_QUIT){
+                this->quit = true;
+            }
+            if(e.key.keysym.sym == SDLK_ESCAPE){
+                this->quit = true;
+            }
+        }
+
+        Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+        SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
         
         clear();
 
@@ -96,6 +124,75 @@ void Rasterizer::ShowRst(){
 
         triangleRasterize(triangle1);
         triangleRasterize(triangle2);
+        RenderCopy();
+    }
+}
+void Rasterizer::TestTexture(){
+    Triangle t1, t2;
+    t1.setVertex(0, Math::Vector3f(300.0f, 300.0f, 0.0f));
+    t1.setVertex(1, Math::Vector3f(600.0f, 600.0f, 0.0f));
+    t1.setVertex(2, Math::Vector3f(300.0f, 600.0f, 0.0f));
+    t2.setVertex(1, Math::Vector3f(600.0f, 600.0f, 0.0f));
+    t2.setVertex(2, Math::Vector3f(300.0f, 600.0f, 0.0f));
+    t2.setVertex(1, Math::Vector3f(600.0f, 300.0f, 0.0f));
+
+    t1.setTexture(0, 1.0f, -1.0f);
+    t1.setTexture(1, 1.0f, 1.0f);
+    t1.setTexture(2, -1.0f, -1.0f);
+    t2.setTexture(0, 1.0f, 1.0f);
+    t2.setTexture(1, -1.0f, -1.0f);
+    t2.setTexture(2, -1.0f, 1.0f);
+    std::vector<Triangle> list = {t1, t2};
+    this->texture->LoadTexture("../assets/container/container.jpg");
+
+    while(!this->quit){
+        while(SDL_PollEvent(&e)){
+            if(e.type == SDL_QUIT){
+                this->quit = true;
+            }
+            if(e.key.keysym.sym == SDLK_ESCAPE){
+                this->quit = true;
+            }
+        }
+        
+        Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+        SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
+        
+        clear();
+    
+        set_model(Transformation::get_model_matrix(10.0f));
+        set_view(this->camera->getViewMatrix());
+        set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
+        Math::Matrix mvp = projection * view * model;
+    
+        float f1 = (100 - 0.1) / 2.0;
+        float f2 = (100 + 0.1) / 2.0;
+    
+        for(auto triangle : list){
+            Math::Vector4f v[] = {
+                mvp * triangle.a().to_Vector4f(1.0f),
+                mvp * triangle.b().to_Vector4f(1.0f),
+                mvp * triangle.c().to_Vector4f(1.0f)
+            };
+            for (auto& vec : v) {
+                vec = vec / vec.w;
+            }
+    
+            for (auto & vert : v){
+                vert.x = std::clamp(vert.x, -1.0f, 1.0f);
+                vert.y = std::clamp(vert.y, -1.0f, 1.0f);
+    
+                vert.x = 0.5 * this->window.width() * (vert.x + 1.0);
+                vert.y = 0.5 * this->window.height() * (vert.y + 1.0);
+                vert.z = vert.z * f1 + f2;
+            }
+    
+            for (int i = 0; i < 3; ++i){
+                triangle.setVertex(i, v[i].to_Vector3f());
+            }
+            triangleRasterize(triangle, this->camera->getView());
+        }
+    
         RenderCopy();
     }
 }

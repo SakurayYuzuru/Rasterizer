@@ -17,6 +17,7 @@ struct Color{
 
     Color operator*(const float& k) const;
     Color operator/(const float& k) const;
+    std::vector<float> format() const;
     Math::Vector3f GetRGB() const;
 
     static Color Identity();

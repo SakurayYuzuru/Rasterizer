@@ -1,43 +1,28 @@
 #include <Texture.h>
 #include <iostream>
 
-Texture::Texture(){ }
-Texture::Texture(const std::string& path){
+Texture::Texture() : texture(nullptr) { }
+Texture::Texture(const std::string& path) : texture(nullptr) {
     LoadTexture(path);
 }
 Texture::~Texture(){ }
 
 void Texture::LoadTexture(const std::string& path){
-    int npComponents;
-    unsigned char *data = stbi_load(path.c_str(), &this->h, &this->w, &npComponents, 0);
-    if(!data){
-        std::cerr << "Texture::Load::Error" << std::endl;
-        stbi_image_free(data);
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if(!surface){
+        std::cerr << "Invalid Texture Path" << std::endl;
         return ;
     }
 
-    this->img.resize(this->h, std::vector<Color>(this->w));
-    for(int y = 0; y < this->h; ++ y){
-        for(int x = 0; x < this->w; ++ x){
-            int index = (y * this->w + x) * npComponents;
-            float r = data[index] / 255.0f;
-            float g = data[index + 1] / 255.0f;
-            float b = data[index + 2] / 255.0f;
-            float a = npComponents == 4 ? data[index + 3] / 255.0f : 1.0f;
-
-            this->img[y][x] = Color(r, g, b, a);
-            // std::cout << r << " " << g << " " << b << std::endl;
-        }
-    }
-
-    stbi_image_free(data);
+    this->texture = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+    SDL_FreeSurface(surface);
 }
 
 int Texture::width() const{
-    return this->w;
+    return texture->w;
 }
 int Texture::height() const{
-    return this->h;
+    return texture->h;
 }
 
 Color Texture::GetColor(float u, float v){
@@ -54,15 +39,40 @@ Color Texture::GetColor(float u, float v){
         v = 1.0f;
     }
 
-    auto u_img = u * (this->w - 1);
-    auto v_img = v * (this->h - 1);
+    auto u_img = static_cast<int>(u * (texture->w - 1));
+    auto v_img = static_cast<int>(v * (texture->h - 1));
 
-    auto color = this->img[v_img][u_img];
-    return color;
+    Uint32* pixels = (Uint32*)texture->pixels;
+    uint32_t color = pixels[v_img * texture->w + u_img];
+    Uint8 ur, ug, ub, ua;
+    SDL_GetRGBA(color, texture->format, &ur, &ug, &ub, &ua);
+    float r = ur / 255.0f, g = ug / 255.0f, b = ub / 255.0f, a = ua / 255.0f;
+    return {r, g, b, a};
 }
 Color Texture::GetColor(Math::Vector2f uv){
     float u = uv.x;
     float v = uv.y;
 
-    return GetColor(u, v);
+    if(u < 0.0f){
+        u = 0.0f;
+    }
+    if(u > 1.0f){
+        u = 1.0f;
+    }
+    if(v < 0.0f){
+        v = 0.0f;
+    }
+    if(v > 1.0f){
+        v = 1.0f;
+    }
+
+    auto u_img = static_cast<int>(u * (texture->w - 1));
+    auto v_img = static_cast<int>(v * (texture->h - 1));
+
+    Uint32* pixels = (Uint32*)texture->pixels;
+    uint32_t color = pixels[v_img * texture->w + u_img];
+    Uint8 ur, ug, ub, ua;
+    SDL_GetRGBA(color, texture->format, &ur, &ug, &ub, &ua);
+    float r = ur / 255.0f, g = ug / 255.0f, b = ub / 255.0f, a = ua / 255.0f;
+    return {r, g, b, a};
 }

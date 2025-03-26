@@ -1,4 +1,6 @@
 #include <Color.h>
+#include <algorithm>
+#include <SDL2/SDL.h>
 
 Color::Color(float _r, float _g, float _b){
     if((_r < 0.0f) || (_r > 255.0f) || 
@@ -44,6 +46,9 @@ Color Color::operator*(const float& k) const{
 Color Color::operator/(const float& k) const{
     return Color(this->GetRGB() / k);
 }
+std::vector<float> Color::format() const{
+    return {this->r * 255.0f, this->g * 255.0f, this->b * 255.0f, this->a * 255.0f};
+}
 Math::Vector3f Color::GetRGB() const{
     return Math::Vector3f(this->r, this->g, this->b);
 }
@@ -53,10 +58,10 @@ Color Color::Identity(){
 }
 
 uint32_t Color::toUInt() const{
-    uint8_t r = static_cast<uint8_t>(this->r * 255.0f);
-    uint8_t g = static_cast<uint8_t>(this->g * 255.0f);
-    uint8_t b = static_cast<uint8_t>(this->b * 255.0f);
-    uint8_t a = static_cast<uint8_t>(this->a * 255.0f);
+    uint8_t r = static_cast<uint8_t>(std::clamp(std::round(this->r * 255.0f), 0.0f, 255.0f));
+    uint8_t g = static_cast<uint8_t>(std::clamp(std::round(this->g * 255.0f), 0.0f, 255.0f));
+    uint8_t b = static_cast<uint8_t>(std::clamp(std::round(this->b * 255.0f), 0.0f, 255.0f));
+    uint8_t a = static_cast<uint8_t>(std::clamp(std::round(this->a * 255.0f), 0.0f, 255.0f));
 
     return (static_cast<uint32_t>(a) << 24) | (static_cast<uint32_t>(r) << 16) |
         (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);

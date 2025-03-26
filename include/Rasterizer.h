@@ -30,6 +30,8 @@ public:
     // Show features
     void ShowBresen();
     void ShowRst();
+    void ShowZBuffer();
+    void TestTexture();
 
     // set mvp matrix
     void set_model(const Math::Matrix &m);

@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <stb_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include <Color.h>
 #include <Math.h>
@@ -26,8 +27,7 @@ public:
     Color GetColor(Math::Vector2f uv);
 
 private:
-    std::vector<std::vector<Color>> img;
-    int w, h;
+    SDL_Surface* texture;
 };
 
 #endif

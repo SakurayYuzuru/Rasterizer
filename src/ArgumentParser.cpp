@@ -42,10 +42,6 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
         }else if(command == "run"){
             std::cout << "[Rasterizer] Running..." << std::endl;
             return std::make_tuple(1, command, arg);
-        }else if(command == "bresen_ham"){
-            return std::make_tuple(2, command, arg);
-        }else if(command == "rst"){
-            return std::make_tuple(3, command, arg);
         }else if(command == "model"){
             if(arg.empty()){
                 return std::make_tuple(0, "help", arg);
@@ -53,7 +49,7 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
                 this->cmdManager.Execute(command, arg);
                 if(this->cmdManager.find(command) && arg.rfind(".obj")){
                     std::cout << "[Mesh] Link Successful!" << std::endl;
-                    return std::make_tuple(4, command, arg);
+                    return std::make_tuple(2, command, arg);
                 }else{
                     continue;
                 }
@@ -65,7 +61,7 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
                 this->cmdManager.Execute(command, arg);
                 if(this->cmdManager.find(command)){
                     std::cout << "[Texture] Link Successful!" << std::endl;
-                    return std::make_tuple(5, command, arg);
+                    return std::make_tuple(3, command, arg);
                 }else{
                     continue;
                 }
@@ -76,11 +72,17 @@ std::tuple<int, std::string, std::string> ArgumentParser::processInput(){
             }else{
                 this->cmdManager.Execute(command, arg);
                 if(this->cmdManager.find(command)){
-                    return std::make_tuple(6, command, arg);
+                    return std::make_tuple(4, command, arg);
                 }else{
                     continue;
                 }
             }
+        }else if(command == "bresen_ham"){
+            return std::make_tuple(5, command, arg);
+        }else if(command == "rst"){
+            return std::make_tuple(6, command, arg);
+        }else if(command == "zbuffer"){
+            return std::make_tuple(7, command, arg);
         }else{
             return std::make_tuple(0, "help", arg);
         }

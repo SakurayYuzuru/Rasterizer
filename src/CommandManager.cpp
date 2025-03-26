@@ -5,6 +5,7 @@
 #include <HelpCommand.h>
 #include <ShowBresenHamCommand.h>
 #include <ShowRstCommand.h>
+#include <ShowZBufferCommand.h>
 #include <LoadMeshCommand.h>
 #include <LoadTextureCommand.h>
 #include <SetShaderCommand.h>
@@ -15,6 +16,7 @@ CommandManager::CommandManager() {
     commands["help"] = std::make_unique<HelpCommand>();
     commands["bresen_ham"] = std::make_unique<ShowBresenHamCommand>();
     commands["rst"] = std::make_unique<ShowRstCommand>();
+    commands["zbuffer"] = std::make_unique<ShowZBufferCommand>();
     commands["run"] = std::make_unique<ExecuteCommand>();
     commands["model"] = std::make_unique<LoadMeshCommand>();
     commands["texture"] = std::make_unique<LoadTextureCommand>();
