@@ -36,3 +36,6 @@ Basic components of a rasterizer were implemented along with the following exten
 
 ### Z-Buffer
 ![Z-buffer](/ScreenShot/ZBuffer.png)
+
+### Bind Texture
+![Bind Texture](/ScreenShot/Texture%20Bind.png)

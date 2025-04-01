@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <Camera.h>
+#include <Math.h>
 #include <Global.h>
 
 namespace Transformation{

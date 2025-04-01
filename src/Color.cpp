@@ -54,7 +54,7 @@ Math::Vector3f Color::GetRGB() const{
 }
 
 Color Color::Identity(){
-    return Color();
+    return Color(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 uint32_t Color::toUInt() const{

@@ -18,7 +18,9 @@ Rasterizer& Rasterizer::GetInstance(){
 
 void Rasterizer::Start(){
     this->mesh = nullptr;
-
+    this->model_angle = 1.0f;
+    this->deltaTime = 0.0f;
+    this->lastTime = 0.0f;
     this->frame_count = 0;
     this->quit = false;
     this->frame_buf.resize(this->window.height() * this->window.width());
@@ -69,8 +71,8 @@ void Rasterizer::ShowRst(){
             if(e.type == SDL_QUIT){
                 this->quit = true;
             }
-            if(e.key.keysym.sym == SDLK_ESCAPE){
-                this->quit = true;
+            if(e.type == SDL_KEYDOWN){
+                processInput();
             }
         }
 
@@ -97,8 +99,8 @@ void Rasterizer::ShowZBuffer(){
             if(e.type == SDL_QUIT){
                 this->quit = true;
             }
-            if(e.key.keysym.sym == SDLK_ESCAPE){
-                this->quit = true;
+            if(e.type == SDL_KEYDOWN){
+                processInput();
             }
         }
 
@@ -128,39 +130,205 @@ void Rasterizer::ShowZBuffer(){
     }
 }
 void Rasterizer::TestTexture(){
-    Triangle t1, t2;
-    t1.setVertex(0, Math::Vector3f(2.0f, -2.0f, 15.0f));
-    t1.setVertex(1, Math::Vector3f(2.0f, 2.0f, 15.0f));
-    t1.setVertex(2, Math::Vector3f(-2.0f, -2.0f, 15.0f));
-    t2.setVertex(1, Math::Vector3f(2.0f, 2.0f, 15.0f));
-    t2.setVertex(2, Math::Vector3f(-2.0f, -2.0f, 15.0f));
-    t2.setVertex(1, Math::Vector3f(-2.0f, 2.0f, 15.0f));
+    Triangle t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12;
+    // Z+
+    t1.setVertex(0, Math::Vector3f(2.0f, -2.0f, 2.0f));
+    t1.setVertex(1, Math::Vector3f(2.0f, 2.0f, 2.0f));
+    t1.setVertex(2, Math::Vector3f(-2.0f, -2.0f, 2.0f));
+    t2.setVertex(0, Math::Vector3f(-2.0f, 2.0f, 2.0f));
+    t2.setVertex(1, Math::Vector3f(2.0f, 2.0f, 2.0f));
+    t2.setVertex(2, Math::Vector3f(-2.0f, -2.0f, 2.0f));
+    // Z-
+    t3.setVertex(0, Math::Vector3f(2.0f, -2.0f, -2.0f));
+    t3.setVertex(1, Math::Vector3f(2.0f, 2.0f, -2.0f));
+    t3.setVertex(2, Math::Vector3f(-2.0f, -2.0f, -2.0f));
+    t4.setVertex(0, Math::Vector3f(-2.0f, 2.0f, -2.0f));
+    t4.setVertex(1, Math::Vector3f(2.0f, 2.0f, -2.0f));
+    t4.setVertex(2, Math::Vector3f(-2.0f, -2.0f, -2.0f));
+    // X+
+    t5.setVertex(0, Math::Vector3f(2.0f, -2.0f, -2.0f));
+    t5.setVertex(1, Math::Vector3f(2.0f, -2.0f, 2.0f));
+    t5.setVertex(2, Math::Vector3f(2.0f, 2.0f, -2.0f));
+    t6.setVertex(0, Math::Vector3f(2.0f, 2.0f, 2.0f));
+    t6.setVertex(1, Math::Vector3f(2.0f, -2.0f, 2.0f));
+    t6.setVertex(2, Math::Vector3f(2.0f, 2.0f, -2.0f));
+    // X-
+    t7.setVertex(0, Math::Vector3f(-2.0f, -2.0f, -2.0f));
+    t7.setVertex(1, Math::Vector3f(-2.0f, -2.0f, 2.0f));
+    t7.setVertex(2, Math::Vector3f(-2.0f, 2.0f, -2.0f));
+    t8.setVertex(0, Math::Vector3f(-2.0f, 2.0f, 2.0f));
+    t8.setVertex(1, Math::Vector3f(-2.0f, -2.0f, 2.0f));
+    t8.setVertex(2, Math::Vector3f(-2.0f, 2.0f, -2.0f));
+    // Y-
+    t9.setVertex(0, Math::Vector3f(2.0f, -2.0f, 2.0f));
+    t9.setVertex(1, Math::Vector3f(-2.0f, -2.0f, 2.0f));
+    t9.setVertex(2, Math::Vector3f(2.0f, -2.0f, -2.0f));
+    t10.setVertex(0, Math::Vector3f(-2.0f, -2.0f, -2.0f));
+    t10.setVertex(1, Math::Vector3f(2.0f, -2.0f, 2.0f));
+    t10.setVertex(2, Math::Vector3f(2.0f, -2.0f, -2.0f));
+    // Y+
+    t11.setVertex(0, Math::Vector3f(2.0f, 2.0f, 2.0f));
+    t11.setVertex(1, Math::Vector3f(-2.0f, 2.0f, 2.0f));
+    t11.setVertex(2, Math::Vector3f(2.0f, 2.0f, -2.0f));
+    t12.setVertex(0, Math::Vector3f(-2.0f, 2.0f, -2.0f));
+    t12.setVertex(1, Math::Vector3f(2.0f, 2.0f, 2.0f));
+    t12.setVertex(2, Math::Vector3f(2.0f, 2.0f, -2.0f));
 
-    t1.setTexture(0, 1.0f, -1.0f);
+    // Z+
+    t1.setNormal(0, Math::Vector3f(0.0f, 0.0f, 1.0f));
+    t1.setNormal(1, Math::Vector3f(0.0f, 0.0f, 1.0f));
+    t1.setNormal(2, Math::Vector3f(0.0f, 0.0f, 1.0f));
+    t2.setNormal(0, Math::Vector3f(0.0f, 0.0f, 1.0f));
+    t2.setNormal(1, Math::Vector3f(0.0f, 0.0f, 1.0f));
+    t2.setNormal(2, Math::Vector3f(0.0f, 0.0f, 1.0f));
+    // Z-
+    t3.setNormal(0, Math::Vector3f(0.0f, 0.0f, -1.0f));
+    t3.setNormal(1, Math::Vector3f(0.0f, 0.0f, -1.0f));
+    t3.setNormal(2, Math::Vector3f(0.0f, 0.0f, -1.0f));
+    t4.setNormal(0, Math::Vector3f(0.0f, 0.0f, -1.0f));
+    t4.setNormal(1, Math::Vector3f(0.0f, 0.0f, -1.0f));
+    t4.setNormal(2, Math::Vector3f(0.0f, 0.0f, -1.0f));
+    // X+
+    t5.setNormal(0, Math::Vector3f(1.0f, 0.0f, 0.0f));
+    t5.setNormal(1, Math::Vector3f(1.0f, 0.0f, 0.0f));
+    t5.setNormal(2, Math::Vector3f(1.0f, 0.0f, 0.0f));
+    t6.setNormal(0, Math::Vector3f(1.0f, 0.0f, 0.0f));
+    t6.setNormal(1, Math::Vector3f(1.0f, 0.0f, 0.0f));
+    t6.setNormal(2, Math::Vector3f(1.0f, 0.0f, 0.0f));
+    // X-
+    t7.setNormal(0, Math::Vector3f(-1.0f, 0.0f, 0.0f));
+    t7.setNormal(1, Math::Vector3f(-1.0f, 0.0f, 0.0f));
+    t7.setNormal(2, Math::Vector3f(-1.0f, 0.0f, 0.0f));
+    t8.setNormal(0, Math::Vector3f(-1.0f, 0.0f, 0.0f));
+    t8.setNormal(1, Math::Vector3f(-1.0f, 0.0f, 0.0f));
+    t8.setNormal(2, Math::Vector3f(-1.0f, 0.0f, 0.0f));
+    // Y-
+    t9.setNormal(0, Math::Vector3f(0.0f, -1.0f, 0.0f));
+    t9.setNormal(1, Math::Vector3f(0.0f, -1.0f, 0.0f));
+    t9.setNormal(2, Math::Vector3f(0.0f, -1.0f, 0.0f));
+    t10.setNormal(0, Math::Vector3f(0.0f, -1.0f, 0.0f));
+    t10.setNormal(1, Math::Vector3f(0.0f, -1.0f, 0.0f));
+    t10.setNormal(2, Math::Vector3f(0.0f, -1.0f, 0.0f));
+    // Y+
+    t11.setNormal(0, Math::Vector3f(0.0f, 1.0f, 0.0f));
+    t11.setNormal(1, Math::Vector3f(0.0f, 1.0f, 0.0f));
+    t11.setNormal(2, Math::Vector3f(0.0f, 1.0f, 0.0f));
+    t12.setNormal(0, Math::Vector3f(0.0f, 1.0f, 0.0f));
+    t12.setNormal(1, Math::Vector3f(0.0f, 1.0f, 0.0f));
+    t12.setNormal(2, Math::Vector3f(0.0f, 1.0f, 0.0f));
+
+    t1.setColor(0, 1.0f, 1.0f, 0.0f);
+    t1.setColor(1, 1.0f, 1.0f, 0.0f);
+    t1.setColor(2, 1.0f, 1.0f, 0.0f);
+    t2.setColor(0, 1.0f, 1.0f, 0.0f);
+    t2.setColor(1, 1.0f, 1.0f, 0.0f);
+    t2.setColor(2, 1.0f, 1.0f, 0.0f);
+
+    t3.setColor(0, 1.0f, 1.0f, 0.0f);
+    t3.setColor(1, 1.0f, 1.0f, 0.0f);
+    t3.setColor(2, 1.0f, 1.0f, 0.0f);
+    t4.setColor(0, 1.0f, 1.0f, 0.0f);
+    t4.setColor(1, 1.0f, 1.0f, 0.0f);
+    t4.setColor(2, 1.0f, 1.0f, 0.0f);
+
+    t5.setColor(0, 1.0f, 0.0f, 1.0f);
+    t5.setColor(1, 1.0f, 0.0f, 1.0f);
+    t5.setColor(2, 1.0f, 0.0f, 1.0f);
+    t6.setColor(0, 1.0f, 0.0f, 1.0f);
+    t6.setColor(1, 1.0f, 0.0f, 1.0f);
+    t6.setColor(2, 1.0f, 0.0f, 1.0f);
+
+    t7.setColor(0, 1.0f, 0.0f, 1.0f);
+    t7.setColor(1, 1.0f, 0.0f, 1.0f);
+    t7.setColor(2, 1.0f, 0.0f, 1.0f);
+    t8.setColor(0, 1.0f, 0.0f, 1.0f);
+    t8.setColor(1, 1.0f, 0.0f, 1.0f);
+    t8.setColor(2, 1.0f, 0.0f, 1.0f);
+
+    t9.setColor(0, 0.0f, 1.0f, 1.0f);
+    t9.setColor(1, 0.0f, 1.0f, 1.0f);
+    t9.setColor(2, 0.0f, 1.0f, 1.0f);
+    t10.setColor(0, 0.0f, 1.0f, 1.0f);
+    t10.setColor(1, 0.0f, 1.0f, 1.0f);
+    t10.setColor(2, 0.0f, 1.0f, 1.0f);
+
+    t11.setColor(0, 0.0f, 1.0f, 1.0f);
+    t11.setColor(1, 0.0f, 1.0f, 1.0f);
+    t11.setColor(2, 0.0f, 1.0f, 1.0f);
+    t12.setColor(0, 0.0f, 1.0f, 1.0f);
+    t12.setColor(1, 0.0f, 1.0f, 1.0f);
+    t12.setColor(2, 0.0f, 1.0f, 1.0f);
+
+    t1.setTexture(0, 1.0f, 0.0f);
     t1.setTexture(1, 1.0f, 1.0f);
-    t1.setTexture(2, -1.0f, -1.0f);
-    t2.setTexture(0, 1.0f, 1.0f);
-    t2.setTexture(1, -1.0f, -1.0f);
-    t2.setTexture(2, -1.0f, 1.0f);
-    std::vector<Triangle> list = {t1, t2};
+    t1.setTexture(2, 0.0f, 0.0f);
+    t2.setTexture(0, 0.0f, 1.0f);
+    t2.setTexture(1, 1.0f, 1.0f);
+    t2.setTexture(2, 0.0f, 0.0f);
+
+    t3.setTexture(0, 1.0f, 0.0f);
+    t3.setTexture(1, 1.0f, 1.0f);
+    t3.setTexture(2, 0.0f, 0.0f);
+    t4.setTexture(0, 0.0f, 1.0f);
+    t4.setTexture(1, 1.0f, 1.0f);
+    t4.setTexture(2, 0.0f, 0.0f);
+
+    t5.setTexture(0, 1.0f, 0.0f);
+    t5.setTexture(1, 1.0f, 1.0f);
+    t5.setTexture(2, 0.0f, 0.0f);
+    t6.setTexture(0, 0.0f, 1.0f);
+    t6.setTexture(1, 1.0f, 1.0f);
+    t6.setTexture(2, 0.0f, 0.0f);
+
+    t7.setTexture(0, 1.0f, 0.0f);
+    t7.setTexture(1, 1.0f, 1.0f);
+    t7.setTexture(2, 0.0f, 0.0f);
+    t8.setTexture(0, 0.0f, 1.0f);
+    t8.setTexture(1, 1.0f, 1.0f);
+    t8.setTexture(2, 0.0f, 0.0f);
+
+    t9.setTexture(0, 1.0f, 0.0f);
+    t9.setTexture(1, 1.0f, 1.0f);
+    t9.setTexture(2, 0.0f, 0.0f);
+    t10.setTexture(0, 0.0f, 1.0f);
+    t10.setTexture(1, 1.0f, 1.0f);
+    t10.setTexture(2, 0.0f, 0.0f);
+
+    t11.setTexture(0, 1.0f, 0.0f);
+    t11.setTexture(1, 1.0f, 1.0f);
+    t11.setTexture(2, 0.0f, 0.0f);
+    t12.setTexture(0, 0.0f, 1.0f);
+    t12.setTexture(1, 1.0f, 1.0f);
+    t12.setTexture(2, 0.0f, 0.0f);
+    
+    std::vector<Triangle> list = {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12};
 
     while(!this->quit){
         while(SDL_PollEvent(&e)){
             if(e.type == SDL_QUIT){
                 this->quit = true;
             }
-            if(e.key.keysym.sym == SDLK_ESCAPE){
-                this->quit = true;
+            if(e.type == SDL_KEYDOWN){
+                processInput();
             }
+            // if(e.type == SDL_MOUSEMOTION){
+            //     int x = e.motion.x;
+            //     int y = e.motion.y;
+            //     mouse_callback(e, x, y);
+            // }
         }
-        
+
+        float currentTime = static_cast<float>(SDL_GetTicks());
+        this->deltaTime = currentTime - this->lastTime;
+        this->lastTime = currentTime;
+
         Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
         SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
         
         clear();
     
-        set_model(Transformation::get_model_matrix(10.0f));
-        set_view(this->camera->getViewMatrix());
+        set_model(Transformation::get_model_matrix(model_angle * SDL_GetTicks()));
+        set_view(this->camera->GetViewMatrix());
         set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
         Math::Matrix mvp = projection * view * model;
     
@@ -181,15 +349,15 @@ void Rasterizer::TestTexture(){
                 vert.x = std::clamp(vert.x, -1.0f, 1.0f);
                 vert.y = std::clamp(vert.y, -1.0f, 1.0f);
     
-                vert.x = 0.5 * this->window.width() * (vert.x + 1.0);
-                vert.y = 0.5 * this->window.height() * (vert.y + 1.0);
+                vert.x = 0.5 * (this->window.width() - 1) * (vert.x + 1.0);
+                vert.y = 0.5 * (this->window.height() - 1) * (vert.y + 1.0);
                 vert.z = vert.z * f1 + f2;
             }
     
             for (int i = 0; i < 3; ++i){
                 triangle.setVertex(i, v[i].to_Vector3f());
             }
-            triangleRasterize(triangle, this->camera->getView());
+            triangleRasterize(triangle, this->camera->front);
         }
     
         RenderCopy();
@@ -393,7 +561,7 @@ std::unique_ptr<uint32_t[]> Rasterizer::frame_buffer() const{
 }
 
 void Rasterizer::draw(){
-    bool inmouse = true;
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     while(SDL_PollEvent(&e)){
         if(e.type == SDL_QUIT){
             this->quit = true;
@@ -401,19 +569,30 @@ void Rasterizer::draw(){
         if(e.type == SDL_KEYDOWN){
             processInput();
         }
-        if(e.type == SDL_MOUSEMOTION && inmouse){
-            mouse_callback(e, inmouse);
+        if(e.type == SDL_MOUSEMOTION){
+            int x = e.motion.x;
+            int y = e.motion.y;
+            mouse_callback(e, x, y);
+        }
+        if (e.type == SDL_MOUSEWHEEL) {
+            int x = e.wheel.x;
+            int y = e.wheel.y;
+            scroll_callback(e, x, y);
         }
     }
+
+    float currentTime = static_cast<float>(SDL_GetTicks());
+    this->deltaTime = currentTime - this->lastTime;
+    this->lastTime = currentTime;
     
-    Math::Vector4f background_color(0.0f, 0.0f, 0.0f, 255.0f);
+    Math::Vector4f background_color(255.0f, 255.0f, 255.0f, 255.0f);
     SDL_SetRenderDrawColor(this->window.GetRenderer(), background_color.x, background_color.y, background_color.z, background_color.w);
     
     clear();
 
-    set_model(Transformation::get_model_matrix(10.0f));
-    set_view(this->camera->getViewMatrix());
-    set_projection(Transformation::get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
+    set_model(Transformation::get_model_matrix(1.0f));
+    set_view(this->camera->GetViewMatrix());
+    set_projection(Transformation::get_projection_matrix(Math::radians(this->camera->zoom), static_cast<float>(this->window.width()) / this->window.height(), 0.1f, 50.0f));
     Math::Matrix mvp = projection * view * model;
 
     float f1 = (100 - 0.1) / 2.0;
@@ -446,7 +625,7 @@ void Rasterizer::draw(){
         for (int i = 0; i < 3; ++i){
             triangle.setVertex(i, v[i].to_Vector3f());
         }
-        triangleRasterize(triangle, this->camera->getView());
+        triangleRasterize(triangle, this->camera->front);
     }
 
     RenderCopy();
@@ -537,40 +716,41 @@ void Rasterizer::processInput(){
     }
 
     if(e.key.keysym.sym == SDLK_w || e.key.keysym.sym == SDLK_UP){
-        this->camera->ProcessKeyboard(FORWARD);
+        this->camera->ProcessKeyboard(FORWARD, this->deltaTime);
     }
     if(e.key.keysym.sym == SDLK_s || e.key.keysym.sym == SDLK_DOWN){
-        this->camera->ProcessKeyboard(BACKWARD);
+        this->camera->ProcessKeyboard(BACKWARD, this->deltaTime);
     }
     if(e.key.keysym.sym == SDLK_a || e.key.keysym.sym == SDLK_LEFT){
-        this->camera->ProcessKeyboard(LEFT);
+        this->model_angle += 2.0f * deltaTime;
     }
     if(e.key.keysym.sym == SDLK_d || e.key.keysym.sym == SDLK_RIGHT){
-        this->camera->ProcessKeyboard(RIGHT);
+        this->model_angle -= 2.0f * deltaTime;
     }
 }
 
-void Rasterizer::mouse_callback(SDL_Event &e, bool &inLoop){
-    inLoop = false;
+void Rasterizer::mouse_callback(SDL_Event &e, double xposIn, double yposIn){
+    float xpos = static_cast<float>(xposIn);
+	float ypos = static_cast<float>(yposIn);
 
-    int xpos, ypos;
-    SDL_GetMouseState(&xpos, &ypos);
+	static float lastX = 1920 / 2.0f;
+	static float lastY = 1080 / 2.0f;
+	static bool firstMouse = true;
 
-    static float lastX = this->window.width() / 2.0f;
-    static float lastY = this->window.height() / 2.0f;
-    static bool firstMouse = true;
+	if (firstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
 
-    if(firstMouse){
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
 
-    lastX = xpos;
-    lastY = ypos;
-
-    this->camera->ProcessMouseMovement(xoffset, yoffset, true);
+	camera->ProcessMouseMovement(xoffset, yoffset);
+}
+void Rasterizer::scroll_callback(SDL_Event &e, double xoffset, double yoffset){
+    camera->ProcessMouseScroll(yoffset);
 }

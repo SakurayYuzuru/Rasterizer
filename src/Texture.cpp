@@ -1,5 +1,6 @@
 #include <Texture.h>
 #include <iostream>
+#include <algorithm>
 
 Texture::Texture() : texture(nullptr) { }
 Texture::Texture(const std::string& path) : texture(nullptr) {
@@ -26,18 +27,8 @@ int Texture::height() const{
 }
 
 Color Texture::GetColor(float u, float v){
-    if(u < 0.0f){
-        u = 0.0f;
-    }
-    if(u > 1.0f){
-        u = 1.0f;
-    }
-    if(v < 0.0f){
-        v = 0.0f;
-    }
-    if(v > 1.0f){
-        v = 1.0f;
-    }
+    u = std::clamp(u, 0.0f, 1.0f);
+    v = std::clamp(v, 0.0f, 1.0f);
 
     auto u_img = static_cast<int>(u * (texture->w - 1));
     auto v_img = static_cast<int>(v * (texture->h - 1));
@@ -50,21 +41,8 @@ Color Texture::GetColor(float u, float v){
     return {r, g, b, a};
 }
 Color Texture::GetColor(Math::Vector2f uv){
-    float u = uv.x;
-    float v = uv.y;
-
-    if(u < 0.0f){
-        u = 0.0f;
-    }
-    if(u > 1.0f){
-        u = 1.0f;
-    }
-    if(v < 0.0f){
-        v = 0.0f;
-    }
-    if(v > 1.0f){
-        v = 1.0f;
-    }
+    float u = std::clamp(uv.x, 0.0f, 1.0f);
+    float v = std::clamp(uv.y, 0.0f, 1.0f);
 
     auto u_img = static_cast<int>(u * (texture->w - 1));
     auto v_img = static_cast<int>(v * (texture->h - 1));

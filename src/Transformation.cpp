@@ -34,10 +34,38 @@ Math::Matrix Transformation::translate(const Math::Vector3f& v){
     return translate;
 }
 
+// Math::Matrix Transformation::rotate(const float& angle, const Math::Vector3f& v){
+//     float radian = angle * PI / 180;
+//     Math::Matrix rotation = Math::Matrix::Identity();
+//     Math::Matrix model = Math::Matrix::Identity();
+//     rotation[0][0] = std::cos(radian);
+//     rotation[0][1] = -(std::sin(radian));
+//     rotation[0][2] = 0;
+//     rotation[0][3] = 0;
+
+//     rotation[1][0] = std::sin(radian);
+//     rotation[1][1] = std::cos(radian);
+//     rotation[1][2] = 0;
+//     rotation[1][3] = 0;
+
+//     rotation[2][0] = 0;
+//     rotation[2][1] = 0;
+//     rotation[2][2] = 1;
+//     rotation[2][3] = 0;
+
+//     rotation[3][0] = 0;
+//     rotation[3][1] = 0;
+//     rotation[3][2] = 0;
+//     rotation[3][3] = 1;
+
+//     model = rotation * model;
+
+//     return model;
+// }
 Math::Matrix Transformation::rotate(const float& angle, const Math::Vector3f& v){
     Math::Matrix rotation = Math::Matrix::Identity();
     float theta = angle * PI / 180.0f;
-    float sin = std::sin(theta / 2), cos = std::cos(theta / 2);
+    float sin = std::sin(theta), cos = std::cos(theta);
     Math::Vector3f axis = v.normalized();
     Math::Matrix quaternion(4, 4);
 
@@ -99,7 +127,7 @@ Math::Matrix Transformation::get_view_matrix(const Math::Vector3f& eye_pos){
 Math::Matrix Transformation::get_model_matrix(const float& angle){
     Math::Matrix model = Math::Matrix::Identity();
     float theta = angle * PI / 180.0f;
-    Math::Matrix rotation = Transformation::rotate(theta, Math::Vector3f(0, 0, 1));
+    Math::Matrix rotation = Transformation::rotate(theta, Math::Vector3f(0.0f, 1.0f, 0.0f));
 
     model = rotation * model;
 
@@ -116,7 +144,7 @@ Math::Matrix Transformation::get_projection_matrix(const float& eye_fov, const f
     float r = -l;
 
     Math::Matrix ortho = Math::Matrix::Identity();
-    ortho[0][0] = 2 / (r - l);
+    ortho[0][0] = 2 / (l - r);
     ortho[1][1] = 2 / (t - b);
     ortho[2][2] = -2 / (zFar - zNear);
 

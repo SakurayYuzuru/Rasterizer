@@ -9,7 +9,7 @@
 #include <Math.h>
 #include <Triangle.h>
 #include <Transformation.h>
-#include <Camera.h>
+#include <Camera.hpp>
 #include <Mesh.h>
 #include <Texture.h>
 
@@ -73,8 +73,8 @@ private:
 
     // Event System
     void processInput();
-    void mouse_callback(SDL_Event &e, bool &inLoop);
-    void scroll_callback(SDL_Event &e);
+    void mouse_callback(SDL_Event &e, double xposIn, double yposIn);
+    void scroll_callback(SDL_Event &e, double xoffset, double yoffset);
 
 private:
     // MVP Matrixes
@@ -94,6 +94,9 @@ private:
     std::optional<Texture> texture;
 
     bool quit;
+    float model_angle;
+    float lastTime;
+    float deltaTime;
     int next_id = 0;
     int frame_count;
     SDL_Event e;

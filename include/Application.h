@@ -8,7 +8,7 @@
 #include <ArgumentParser.h>
 #include <CommandManager.h>
 #include <Rasterizer.h>
-#include <Camera.h>
+#include <Camera.hpp>
 #include <Mesh.h>
 #include <Texture.h>
 

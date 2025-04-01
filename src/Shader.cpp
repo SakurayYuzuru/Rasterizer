@@ -16,7 +16,7 @@ Color Shader::texture_fragment_shader(const Vertex& payload, const Math::Vector3
     Color texture_color = return_color;
 
     Math::Vector3f ka(0.005f, 0.005f, 0.005f);
-    Math::Vector3f kd = texture_color.GetRGB() / 255.0f;
+    Math::Vector3f kd = texture_color.GetRGB();
     Math::Vector3f ks(0.7937f, 0.7937f, 0.7937f);
 
     auto l1 = Light{{20, 20, 20}, {500, 500, 500}};
@@ -27,7 +27,6 @@ Color Shader::texture_fragment_shader(const Vertex& payload, const Math::Vector3
 
     float p = 150;
 
-    Color color = texture_color;
     Math::Vector3f point = payload.v;
     Math::Vector3f normal = payload.normal;
 
@@ -50,7 +49,7 @@ Color Shader::texture_fragment_shader(const Vertex& payload, const Math::Vector3
 
         specular = specular + ks.cwise(light.intensity / (r_square)) * std::pow(std::max(0.0f, normal.dot(h)), p);
     }
-    // result_color = ambient + diffuse + specular;
+    result_color = ambient + diffuse + specular;
 
     return texture_color;
 }
