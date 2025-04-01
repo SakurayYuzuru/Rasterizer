@@ -42,19 +42,10 @@ Basic components of a rasterizer were implemented along with the following exten
 
 ### Shaders
 Normal Shader
-<video width="1080" height="960" controls>
-  <source src="/ScreenShot/normal_shader.mp4" type="video/mp4">
-  Normal Shader.
-</video>
+![Normal Shader](/ScreenShot/normal_shader.gif)
 
 Bump Shader
-<video width = "1080" height = "960" controls>
-  <source src = "/ScreenShot/bump_shader.mp4" type = "video/mp4">
-  Bump Shader
-</video>
+![Bump Shader](/ScreenShot/bump_shader.gif)
 
 Texture Shader with light
-<video width = "1080" height = "960" controls>
-  <source src = "/ScreenShot/texture_shader.mp4" type = "video/mp4">
-  Texture Shader
-</video>
+![Texture Shader](/ScreenShot/texture_shader.gif)
