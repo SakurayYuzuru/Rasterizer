@@ -39,3 +39,22 @@ Basic components of a rasterizer were implemented along with the following exten
 
 ### Bind Texture
 ![Bind Texture](/ScreenShot/Texture%20Bind.png)
+
+### Shaders
+Normal Shader
+<video width="1080" height="960" controls>
+  <source src="/ScreenShot/normal_shader.mp4" type="video/mp4">
+  Normal Shader.
+</video>
+
+Bump Shader
+<video width = "1080" height = "960" controls>
+  <source src = "/ScreenShot/bump_shader.mp4" type = "video/mp4">
+  Bump Shader
+</video>
+
+Texture Shader with light
+<video width = "1080" height = "960" controls>
+  <source src = "/ScreenShot/texture_shader.mp4" type = "video/mp4">
+  Texture Shader
+</video>

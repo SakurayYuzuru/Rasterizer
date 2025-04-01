@@ -14,5 +14,5 @@ void HelpCommand::Execute(const std::string& arg){
                   << "  shader                    Set the shader for this rasterization" << std::endl
                   << "  model <model-path>        Set model" << std::endl
                   << "  texture <picture-path>    Set texture" << std::endl
-                  << "  run                       Execute for rendering" << std::endl;
+                  << "  run                       Execute for rendering (Now, just for testing texture and shaders)" << std::endl;
 }

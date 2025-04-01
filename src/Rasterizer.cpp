@@ -24,8 +24,8 @@ void Rasterizer::Start(){
     this->frame_count = 0;
     this->quit = false;
     this->frame_buf.resize(this->window.height() * this->window.width());
-    this->z_buffer.resize(this->window.height() * this->window.width());
-    this->fragment_shader = Shader::texture_fragment_shader;
+    this->z_buffer.resize(this->window.height() * this->window.width(), -std::numeric_limits<float>::infinity());
+    this->fragment_shader = Shader::phong_fragment_shader;
     this->texture = std::nullopt;
 }
 void Rasterizer::Update(){
@@ -175,12 +175,12 @@ void Rasterizer::TestTexture(){
     t12.setVertex(2, Math::Vector3f(2.0f, 2.0f, -2.0f));
 
     // Z+
-    t1.setNormal(0, Math::Vector3f(0.0f, 0.0f, 1.0f));
-    t1.setNormal(1, Math::Vector3f(0.0f, 0.0f, 1.0f));
-    t1.setNormal(2, Math::Vector3f(0.0f, 0.0f, 1.0f));
-    t2.setNormal(0, Math::Vector3f(0.0f, 0.0f, 1.0f));
-    t2.setNormal(1, Math::Vector3f(0.0f, 0.0f, 1.0f));
-    t2.setNormal(2, Math::Vector3f(0.0f, 0.0f, 1.0f));
+    t1.setNormal(0, Math::Vector3f(1.0f, 0.0f, 1.0f));
+    t1.setNormal(1, Math::Vector3f(1.0f, 1.0f, 0.0f));
+    t1.setNormal(2, Math::Vector3f(0.0f, 1.0f, 1.0f));
+    t2.setNormal(0, Math::Vector3f(1.0f, 0.0f, 1.0f));
+    t2.setNormal(1, Math::Vector3f(1.0f, 1.0f, 0.0f));
+    t2.setNormal(2, Math::Vector3f(0.0f, 1.0f, 1.0f));
     // Z-
     t3.setNormal(0, Math::Vector3f(0.0f, 0.0f, -1.0f));
     t3.setNormal(1, Math::Vector3f(0.0f, 0.0f, -1.0f));
@@ -357,6 +357,7 @@ void Rasterizer::TestTexture(){
             for (int i = 0; i < 3; ++i){
                 triangle.setVertex(i, v[i].to_Vector3f());
             }
+
             triangleRasterize(triangle, this->camera->front);
         }
     

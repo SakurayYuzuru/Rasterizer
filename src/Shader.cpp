@@ -51,7 +51,7 @@ Color Shader::texture_fragment_shader(const Vertex& payload, const Math::Vector3
     }
     result_color = ambient + diffuse + specular;
 
-    return texture_color;
+    return result_color;
 }
 
 Color Shader::phong_fragment_shader(const Vertex& payload, const Math::Vector3f& eye_pos){

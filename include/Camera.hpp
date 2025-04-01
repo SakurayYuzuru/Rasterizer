@@ -16,7 +16,7 @@ enum Camera_Movement{
 };
 
 const float YAW         = -90.0f;
-const float PITCH       =  0.0f;
+const float PITCH       =  45.0f;
 const float SPEED       =  2.5f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
@@ -35,14 +35,15 @@ public:
     float mouseSensitivity;
     float zoom;
 
-    Camera(Math::Vector3f _position = Math::Vector3f(0.0f, 0.0f, 20.0f), Math::Vector3f _up = Math::Vector3f(0.0f, 1.0f, 0.0f), float _yaw = YAW, float _pitch = PITCH) : 
+    Camera(Math::Vector3f _position = Math::Vector3f(0.0f, 0.0f, 10.0f), Math::Vector3f _up = Math::Vector3f(0.0f, 1.0f, 0.0f), float _yaw = YAW, float _pitch = PITCH) : 
         front(Math::Vector3f(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
         this->position = _position;
         this->worldup = _up;
         this->yaw = _yaw;
         this->pitch = _pitch;
-
-        updateCameraVectors();
+        this->up = Math::Vector3f(0.0f, 1.0f, 0.0f);
+        this->right = Math::Vector3f(1.0f, 0.0f, 0.0f);
+        this->front = front;
     }
     Camera(float _posX, float _posY, float _posZ, float _upX, float _upY, float _upZ, float _yaw, float _pitch) : 
         front(Math::Vector3f(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
@@ -50,8 +51,9 @@ public:
         this->worldup = Math::Vector3f(_upX, _upY, _upZ);
         this->yaw = _yaw;
         this->pitch = _pitch;
-
-        updateCameraVectors();
+        this->up = Math::Vector3f(0.0f, 1.0f, 0.0f);
+        this->right = Math::Vector3f(1.0f, 0.0f, 0.0f);
+        this->front = front;
     }
 
     Math::Matrix GetViewMatrix() const{
@@ -61,10 +63,10 @@ public:
     void ProcessKeyboard(Camera_Movement dir, float deltaTime){
         float velocity = this->movementSpeed * deltaTime;
         if(dir == FORWARD){
-            this->position = this->position + this->front * velocity;
+            this->position = this->position - this->front * velocity;
         }
         if(dir == BACKWARD){
-            this->position = this->position - this->front * velocity;
+            this->position = this->position + this->front * velocity;
         }
         if(dir == LEFT){
             this->position = this->position - this->right * velocity;

@@ -34,34 +34,6 @@ Math::Matrix Transformation::translate(const Math::Vector3f& v){
     return translate;
 }
 
-// Math::Matrix Transformation::rotate(const float& angle, const Math::Vector3f& v){
-//     float radian = angle * PI / 180;
-//     Math::Matrix rotation = Math::Matrix::Identity();
-//     Math::Matrix model = Math::Matrix::Identity();
-//     rotation[0][0] = std::cos(radian);
-//     rotation[0][1] = -(std::sin(radian));
-//     rotation[0][2] = 0;
-//     rotation[0][3] = 0;
-
-//     rotation[1][0] = std::sin(radian);
-//     rotation[1][1] = std::cos(radian);
-//     rotation[1][2] = 0;
-//     rotation[1][3] = 0;
-
-//     rotation[2][0] = 0;
-//     rotation[2][1] = 0;
-//     rotation[2][2] = 1;
-//     rotation[2][3] = 0;
-
-//     rotation[3][0] = 0;
-//     rotation[3][1] = 0;
-//     rotation[3][2] = 0;
-//     rotation[3][3] = 1;
-
-//     model = rotation * model;
-
-//     return model;
-// }
 Math::Matrix Transformation::rotate(const float& angle, const Math::Vector3f& v){
     Math::Matrix rotation = Math::Matrix::Identity();
     float theta = angle * PI / 180.0f;
